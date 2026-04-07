@@ -36,7 +36,7 @@
 ## 🚀 快速开始
 
 ### 在线游玩
-访问：**https://jingwang-star996.github.io/skyrim-web-rpg/**
+访问：**https://jingwang-star996.github.io/dragonborn-legend/**
 
 ### 本地运行
 ```bash
@@ -171,6 +171,6 @@ MIT 许可证 - 自由使用、修改和分发！
 
 ## 🔗 链接
 
-- **在线游玩**: https://jingwang-star996.github.io/skyrim-web-rpg/
-- **问题反馈**: https://github.com/JingWang-Star996/skyrim-web-rpg/issues
-- **作者 GitHub**: https://github.com/JingWang-Star996
+- **在线游玩**: https://jingwang-star996.github.io/dragonborn-legend/
+- **问题反馈**: https://github.com/JingWang-Star996/dragonborn-legend/issues
+- **作者 GitHub**: https://github.com/JingWang-Star996/dragonborn-legend

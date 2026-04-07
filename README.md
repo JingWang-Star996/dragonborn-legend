@@ -36,7 +36,7 @@ A complete **Skyrim-inspired web RPG** built with pure HTML/CSS/JavaScript. Expe
 ## 🚀 Quick Start
 
 ### Play Online
-Visit: **https://jingwang-star996.github.io/skyrim-web-rpg/**
+Visit: **https://jingwang-star996.github.io/dragonborn-legend/**
 
 ### Local Development
 ```bash
@@ -171,6 +171,6 @@ MIT License - Feel free to use, modify, and distribute!
 
 ## 🔗 Links
 
-- **Play Online**: https://jingwang-star996.github.io/skyrim-web-rpg/
-- **Report Issues**: https://github.com/JingWang-Star996/skyrim-web-rpg/issues
-- **Author's GitHub**: https://github.com/JingWang-Star996
+- **Play Online**: https://jingwang-star996.github.io/dragonborn-legend/
+- **Report Issues**: https://github.com/JingWang-Star996/dragonborn-legend/issues
+- **Author's GitHub**: https://github.com/JingWang-Star996/dragonborn-legend
