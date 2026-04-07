@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>天霜纪 — 龙裔传说</title>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Noto+Serif+SC:wght@400;600;700;900&family=MedievalSharp&display=swap');
+:root {
+  --bg-dark: #0a0a0f; --bg-panel: #12121aee; --bg-panel-solid: #15151f;
+  --gold: #c8a84e; --gold-bright: #f0d060; --gold-dim: #8a6d2b;
+  --blood: #8b1a1a; --blood-bright: #c62828; --frost: #4fc3f7; --frost-dim: #1a3a5c;
+  --magicka: #7c4dff; --stamina: #66bb6a; --health: #c62828;
+  --text: #d4c8a0; --text-dim: #7a7060; --text-bright: #f5ead0;
+  --border: #2a2520; --border-light: #3d352a;
+  --font-display: 'Cinzel', 'Noto Serif SC', serif;
+  --font-body: 'Noto Serif SC', 'Cinzel', serif;
+  --font-rune: 'MedievalSharp', cursive;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --nav-height: 56px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { height: 100%; }
+body {
+  width:100%; height:100%;
+  min-height: 100dvh;
+  overflow:hidden;
+  background:var(--bg-dark);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14px;
+}
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#0a0a0f; }
+::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:3px; }
+button { font-family:var(--font-body); cursor:pointer; border:none; outline:none; transition:all .2s; }
+#app { width:100%; height:100%; display:flex; flex-direction:column; }
+
+/* ============================================================
+   TITLE SCREEN
+   ============================================================ */
+.title-screen {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:1000;
+  background: radial-gradient(ellipse at 50% 30%, #1a1520 0%, #0a0a0f 60%, #000 100%);
+  overflow-y: auto;
+  padding: 20px 20px calc(20px + var(--safe-bottom));
+}
+.title-screen::before {
+  content:''; position:absolute; inset:0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L32 28L60 30L32 32L30 60L28 32L0 30L28 28Z' fill='%23c8a84e08'/%3E%3C/svg%3E") repeat;
+  animation: starTwinkle 8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes starTwinkle { 0%,100%{opacity:.3} 50%{opacity:.8} }
+.title-dragon { font-size:100px; margin-bottom:10px; filter:drop-shadow(0 0 30px #c8a84e66); animation: dragonFloat 4s ease-in-out infinite; }
+@keyframes dragonFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+.title-text { font-family:var(--font-display); font-size:48px; font-weight:900; letter-spacing:12px;
+  background:linear-gradient(180deg, #f0d060 0%, #c8a84e 40%, #8a6d2b 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:5px; }
+.title-sub { font-family:var(--font-display); font-size:18px; color:var(--gold-dim); letter-spacing:8px; margin-bottom:40px; }
+.title-btn { display:block; width:280px; padding:14px 0; margin:8px auto; font-family:var(--font-display); font-size:16px; letter-spacing:4px;
+  background:transparent; border:1px solid var(--gold-dim); color:var(--gold); position:relative; overflow:hidden; }
+.title-btn:hover { background:linear-gradient(90deg, transparent, #c8a84e22, transparent); border-color:var(--gold); color:var(--gold-bright); text-shadow:0 0 10px #c8a84e88; }
+.title-btn::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+  background:linear-gradient(90deg, transparent, #c8a84e15, transparent); transition:left .5s; }
+.title-btn:hover::before { left:100%; }
+.title-version { margin-top:20px; color:var(--text-dim); font-size:12px; letter-spacing:2px; text-align:center; }
+
+/* ============================================================
+   CHARACTER CREATION
+   ============================================================ */
+.char-create {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column; align-items:center;
+  z-index:999;
+  background:radial-gradient(ellipse at 50% 20%, #1a1018 0%, #0a0a0f 70%);
+  overflow-y:auto;
+  padding: 40px 20px calc(40px + var(--safe-bottom));
+}
+.cc-title { font-family:var(--font-display); font-size:28px; color:var(--gold); letter-spacing:6px; margin-bottom:30px; }
+.cc-section { margin-bottom:25px; width:600px; max-width:90%; }
+.cc-label { font-size:13px; color:var(--gold-dim); letter-spacing:3px; margin-bottom:8px; text-transform:uppercase; }
+.cc-input { width:100%; padding:12px 16px; background:#1a1a24; border:1px solid var(--border); color:var(--text-bright);
+  font-family:var(--font-body); font-size:16px; outline:none; }
+.cc-input:focus { border-color:var(--gold-dim); }
+.race-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+.race-card { padding:12px 8px; text-align:center; background:#1a1a24; border:1px solid var(--border); cursor:pointer; transition:all .2s; }
+.race-card:hover { border-color:var(--gold-dim); background:#222230; }
+.race-card.selected { border-color:var(--gold); background:linear-gradient(180deg, #2a2520, #1a1a24); box-shadow:0 0 15px #c8a84e33; }
+.race-icon { font-size:28px; margin-bottom:4px; }
+.race-name { font-size:12px; color:var(--text); font-weight:600; }
+.race-bonus { font-size:10px; color:var(--text-dim); margin-top:3px; }
+.cc-confirm { padding:14px 60px; font-family:var(--font-display); font-size:16px; letter-spacing:4px; margin-top:20px;
+  background:linear-gradient(180deg, #2a2010, #1a1508); border:1px solid var(--gold-dim); color:var(--gold); }
+.cc-confirm:hover { border-color:var(--gold); background:linear-gradient(180deg, #3a3020, #2a2010); box-shadow:0 0 20px #c8a84e44; }
+
+/* ============================================================
+   DESKTOP GAME LAYOUT
+   ============================================================ */
+.game-container {
+  display:grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 300px 1fr 280px;
+  width:100%; height:100%;
+}
+.top-bar {
+  grid-column:1/-1;
+  display:flex; align-items:center; padding:6px 16px; gap:16px;
+  background:linear-gradient(180deg, #15151f, #0e0e16);
+  border-bottom:1px solid var(--border);
+  height:48px;
+}
+.compass { display:flex; align-items:center; gap:8px; margin-right:auto; }
+.compass-dir { font-family:var(--font-rune); font-size:11px; color:var(--text-dim); padding:2px 6px; }
+.compass-dir.active { color:var(--gold); text-shadow:0 0 8px #c8a84e88; }
+.stat-bars { display:flex; gap:12px; align-items:center; flex:1; justify-content:center; }
+.stat-bar { display:flex; align-items:center; gap:6px; }
+.bar-label { font-size:10px; letter-spacing:1px; color:var(--text-dim); min-width:18px; text-align:right; }
+.bar-track { width:140px; height:14px; background:#1a1a24; border:1px solid #2a2a34; position:relative; overflow:hidden; }
+.bar-fill { height:100%; transition:width .5s ease; position:relative; }
+.bar-fill::after { content:''; position:absolute; top:0; left:0; right:0; height:40%; background:linear-gradient(180deg, rgba(255,255,255,.15), transparent); }
+.bar-fill.health { background:linear-gradient(90deg, #8b1a1a, #c62828); }
+.bar-fill.magicka { background:linear-gradient(90deg, #4a148c, #7c4dff); }
+.bar-fill.stamina { background:linear-gradient(90deg, #2e7d32, #66bb6a); }
+.top-info { display:flex; align-items:center; gap:16px; margin-left:auto; }
+.top-level { font-family:var(--font-display); font-size:13px; color:var(--gold); }
+.top-gold { font-size:13px; color:var(--gold-bright); }
+.top-time { font-size:11px; color:var(--text-dim); }
+
+/* Left Panel */
+.left-panel { background:var(--bg-panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+.panel-tabs { display:flex; border-bottom:1px solid var(--border); flex-shrink:0; }
+.panel-tab { flex:1; padding:8px; text-align:center; font-size:11px; letter-spacing:2px; color:var(--text-dim); cursor:pointer;
+  background:transparent; border-bottom:2px solid transparent; }
+.panel-tab.active { color:var(--gold); border-bottom-color:var(--gold-dim); }
+.panel-content { flex:1; overflow-y:auto; }
+
+/* Map */
+.world-map { width:100%; aspect-ratio:1; position:relative; background:#0e1118;
+  background-image: radial-gradient(ellipse at 30% 20%, #1a2530 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 70%, #1a1520 0%, transparent 35%),
+    radial-gradient(ellipse at 50% 50%, #151a18 0%, transparent 50%); }
+.map-location { position:absolute; cursor:pointer; text-align:center; transform:translate(-50%,-50%); transition:all .2s; z-index:2; }
+.map-location:hover { transform:translate(-50%,-50%) scale(1.15); }
+.map-loc-icon { font-size:18px; filter:drop-shadow(0 0 4px #000); }
+.map-loc-name { font-size:9px; color:var(--text-dim); white-space:nowrap; margin-top:1px; }
+.map-location.current .map-loc-name { color:var(--gold); }
+.map-location.current .map-loc-icon { filter:drop-shadow(0 0 8px #c8a84e88); }
+.map-player { position:absolute; width:10px; height:10px; background:var(--gold-bright); border-radius:50%; transform:translate(-50%,-50%);
+  box-shadow:0 0 10px #f0d060, 0 0 20px #c8a84e88; z-index:5; transition:all 1s ease; }
+.map-terrain { position:absolute; font-size:8px; color:#ffffff15; pointer-events:none; }
+
+/* Quest Log */
+.quest-log { padding:10px; }
+.ql-section { margin-bottom:12px; }
+.ql-header { font-size:11px; color:var(--gold-dim); letter-spacing:2px; padding-bottom:4px; border-bottom:1px solid var(--border); margin-bottom:6px; }
+.ql-item { padding:6px 8px; margin-bottom:3px; background:#1a1a2488; border-left:2px solid var(--gold-dim); cursor:pointer; transition:all .2s; }
+.ql-item:hover { background:#1a1a2488; border-left-color:var(--gold); }
+.ql-item.active { border-left-color:var(--gold-bright); background:#2a2520aa; }
+.ql-item-name { font-size:12px; color:var(--text); }
+.ql-item-desc { font-size:10px; color:var(--text-dim); margin-top:2px; }
+
+/* Center Panel */
+.center-panel { display:flex; flex-direction:column; background:var(--bg-dark); overflow:hidden; position:relative; }
+.scene-bg { position:absolute; inset:0; opacity:.3; transition:all 1s; z-index:0; pointer-events:none; }
+.narrative-area { flex:1; min-height:0; overflow-y:auto; padding:24px 32px; position:relative; z-index:1; }
+.narr-text { font-size:15px; line-height:2; color:var(--text); margin-bottom:16px; animation:fadeInUp .5s ease; }
+.narr-text.important { color:var(--gold-bright); font-weight:600; text-shadow:0 0 10px #c8a84e44; }
+.narr-text.system { color:var(--text-dim); font-style:italic; font-size:13px; }
+.narr-text.combat { color:var(--blood-bright); }
+.narr-text.magic { color:var(--frost); }
+.narr-text.shout { color:var(--gold-bright); font-family:var(--font-display); font-size:18px; letter-spacing:4px; text-shadow:0 0 20px #c8a84e88; }
+.narr-divider { width:60px; height:1px; background:linear-gradient(90deg, transparent, var(--gold-dim), transparent); margin:20px auto; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.dialogue-box { background:#15151fee; border:1px solid var(--border); padding:16px; margin:12px 0; position:relative; }
+.dialogue-speaker { font-size:12px; color:var(--gold); letter-spacing:2px; margin-bottom:6px; }
+.dialogue-text { font-size:14px; line-height:1.8; }
+
+/* Choices */
+.choices-area { flex-shrink:0; padding:12px 32px 16px; border-top:1px solid var(--border); position:relative; z-index:1; }
+.choice-btn { display:block; width:100%; padding:10px 16px; margin-bottom:6px; text-align:left; font-size:14px;
+  background:linear-gradient(90deg, #1a1a2400, #1a1a24aa, #1a1a2400); border:1px solid var(--border); color:var(--text); position:relative; }
+.choice-btn:hover { border-color:var(--gold-dim); color:var(--gold-bright); background:linear-gradient(90deg, transparent, #2a251088, transparent); }
+.choice-btn::before { content:'▸'; margin-right:8px; color:var(--gold-dim); }
+.choice-btn:hover::before { color:var(--gold); }
+.choice-btn.locked { opacity:.4; pointer-events:none; }
+.choice-btn .choice-req { font-size:10px; color:var(--blood); margin-left:8px; }
+
+/* Action Bar */
+.action-bar { grid-column:1/-1; display:flex; align-items:center; justify-content:center; gap:8px; padding:8px 16px;
+  background:linear-gradient(0deg, #15151f, #0e0e16); border-top:1px solid var(--border); flex-shrink:0; }
+.action-btn { padding:8px 20px; font-size:12px; letter-spacing:2px;
+  background:linear-gradient(180deg, #222230, #1a1a24); border:1px solid var(--border); color:var(--text-dim); }
+.action-btn:hover { border-color:var(--gold-dim); color:var(--gold); }
+.action-btn.primary { border-color:var(--gold-dim); color:var(--gold); }
+
+/* Right Panel */
+.right-panel { background:var(--bg-panel); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+
+/* Inventory */
+.inv-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:8px; }
+.inv-slot { aspect-ratio:1; background:#1a1a24; border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+  font-size:20px; cursor:pointer; position:relative; transition:all .2s; }
+.inv-slot:hover { border-color:var(--gold-dim); background:#222230; }
+.inv-slot.equipped { border-color:var(--gold); box-shadow:inset 0 0 10px #c8a84e33; }
+.inv-count { position:absolute; bottom:1px; right:3px; font-size:9px; color:var(--text-dim); }
+.inv-slot-tip { display:none; position:absolute; bottom:110%; left:50%; transform:translateX(-50%); background:#1a1a24ee;
+  border:1px solid var(--gold-dim); padding:8px 12px; z-index:10; min-width:160px; white-space:nowrap; }
+.inv-slot:hover .inv-slot-tip { display:block; }
+.tip-name { font-size:12px; color:var(--gold); margin-bottom:3px; }
+.tip-desc { font-size:10px; color:var(--text-dim); }
+.tip-stats { font-size:10px; color:var(--stamina); margin-top:3px; }
+
+/* Stats Panel */
+.stats-list { padding:10px; }
+.stat-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px solid #1a1a2444; }
+.stat-name { font-size:11px; color:var(--text-dim); }
+.stat-val { font-size:11px; color:var(--text); }
+.stat-val.high { color:var(--gold); }
+
+/* ============================================================
+   COMBAT SCREEN
+   ============================================================ */
+.combat-overlay {
+  position:fixed; inset:0; z-index:100;
+  display:flex; flex-direction:column;
+  background:radial-gradient(ellipse at 50% 40%, #1a0808 0%, #0a0a0f 70%);
+  overflow: hidden;
+}
+.combat-header { text-align:center; padding:12px 16px; flex-shrink:0; }
+.combat-enemy-name { font-family:var(--font-display); font-size:24px; color:var(--blood-bright); letter-spacing:4px; }
+.combat-enemy-lvl { font-size:12px; color:var(--text-dim); }
+.combat-scene { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; flex-shrink:0; padding:8px 0; }
+.enemy-visual { font-size:72px; filter:drop-shadow(0 0 30px #c6282855); animation: enemyIdle 3s ease-in-out infinite; }
+@keyframes enemyIdle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.enemy-hp-bar { width:280px; height:14px; background:#1a1a24; border:1px solid var(--border); overflow:hidden; }
+.enemy-hp-fill { height:100%; background:linear-gradient(90deg, #8b1a1a, #c62828); transition:width .5s; }
+.combat-log { flex:1; min-height:60px; overflow-y:auto; padding:8px 16px; background:#0a0a0f88; margin:0 16px; border:1px solid var(--border); }
+.combat-log-entry { font-size:12px; margin-bottom:3px; animation:fadeInUp .3s; }
+.combat-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:10px 12px; flex-shrink:0;
+  overflow-y:auto; max-height:35vh;
+  padding-bottom: calc(10px + var(--safe-bottom)); }
+.combat-btn { padding:9px 18px; font-size:12px; letter-spacing:1px;
+  background:linear-gradient(180deg, #2a1515, #1a0a0a); border:1px solid var(--blood); color:#e57373; }
+.combat-btn:hover { background:linear-gradient(180deg, #3a2020, #2a1515); box-shadow:0 0 15px #c6282844; color:#ff8a80; }
+.combat-btn.magic { border-color:var(--frost-dim); color:var(--frost); background:linear-gradient(180deg, #152030, #0a1520); }
+.combat-btn.magic:hover { box-shadow:0 0 15px #4fc3f744; }
+.combat-btn.item { border-color:var(--stamina); color:var(--stamina); background:linear-gradient(180deg, #152015, #0a150a); }
+.combat-btn.shout-btn { border-color:var(--gold); color:var(--gold); background:linear-gradient(180deg, #2a2010, #1a1508);
+  text-transform:uppercase; font-family:var(--font-display); }
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-overlay { position:fixed; inset:0; background:#000000cc; z-index:200; display:flex; align-items:center; justify-content:center;
+  padding: 16px 16px calc(16px + var(--safe-bottom)); }
+.modal { background:var(--bg-panel-solid); border:1px solid var(--border-light); padding:24px; max-width:500px; width:100%; max-height:80vh; overflow-y:auto; }
+.modal-title { font-family:var(--font-display); font-size:20px; color:var(--gold); letter-spacing:4px; margin-bottom:16px; text-align:center; }
+.modal-text { font-size:13px; line-height:1.8; margin-bottom:16px; }
+.modal-btn { display:block; width:100%; padding:10px; margin-top:8px; background:linear-gradient(180deg, #222230, #1a1a24);
+  border:1px solid var(--border); color:var(--text); font-size:13px; text-align:center; }
+.modal-btn:hover { border-color:var(--gold-dim); color:var(--gold); }
+
+/* Level Up */
+.levelup-overlay { position:fixed; inset:0; z-index:150; background:radial-gradient(ellipse at 50% 50%, #2a2010 0%, #0a0a0f 60%);
+  display:flex; align-items:center; justify-content:center;
+  padding: 16px 16px calc(16px + var(--safe-bottom)); }
+.levelup-box { text-align:center; }
+.levelup-title { font-family:var(--font-display); font-size:36px; color:var(--gold-bright); letter-spacing:8px; margin-bottom:20px;
+  text-shadow:0 0 30px #c8a84e88; animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+.levelup-choose { display:flex; gap:16px; margin-top:20px; justify-content:center; flex-wrap:wrap; }
+.levelup-attr { padding:20px; border:1px solid var(--border); cursor:pointer; width:130px; text-align:center; transition:all .3s; }
+.levelup-attr:hover { border-color:var(--gold); background:#2a2520; }
+.levelup-attr-icon { font-size:30px; margin-bottom:8px; }
+.levelup-attr-name { font-size:14px; color:var(--text); }
+.levelup-attr-val { font-size:11px; color:var(--text-dim); margin-top:4px; }
+
+/* Shop */
+.shop-item { display:flex; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border); cursor:pointer; }
+.shop-item:hover { background:#1a1a24; }
+.shop-item-icon { font-size:20px; margin-right:10px; }
+.shop-item-info { flex:1; }
+.shop-item-name { font-size:12px; color:var(--text); }
+.shop-item-desc { font-size:10px; color:var(--text-dim); }
+.shop-item-price { font-size:12px; color:var(--gold); }
+
+/* Town Panel */
+.town-panel { padding:12px; }
+.town-name { font-family:var(--font-display); font-size:18px; color:var(--gold); letter-spacing:3px; margin-bottom:4px; }
+.town-desc { font-size:12px; color:var(--text-dim); line-height:1.6; margin-bottom:12px; }
+.town-actions { display:flex; flex-direction:column; gap:6px; }
+.town-btn { padding:10px 14px; font-size:12px; text-align:left; background:#1a1a24; border:1px solid var(--border); color:var(--text); }
+.town-btn:hover { border-color:var(--gold-dim); color:var(--gold); background:#222230; }
+.town-btn-icon { margin-right:8px; }
+.travel-section { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
+.travel-section-title { font-size:10px; color:var(--text-dim); letter-spacing:2px; margin-bottom:6px; }
+.travel-btn { padding:8px 12px; font-size:11px; text-align:left; background:#12121a; border:1px solid #1e1e28; color:var(--text-dim); width:100%; margin-bottom:4px; }
+.travel-btn:hover { border-color:var(--gold-dim); color:var(--gold); background:#1a1a24; }
+.travel-btn .travel-dist { float:right; font-size:10px; opacity:.6; }
+.quest-hint { margin-top:10px; padding:10px 12px; background:#2a201088; border:1px solid var(--gold-dim); font-size:12px; color:var(--gold); line-height:1.6; }
+.quest-hint-label { font-size:10px; letter-spacing:2px; color:var(--gold-dim); margin-bottom:4px; }
+.author-info { font-size:10px; color:var(--text-dim); letter-spacing:1px; margin-left:auto; }
+
+/* Travel overlay */
+.travel-overlay { position:fixed; inset:0; z-index:80; background:#0a0a0fee; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.travel-text { font-family:var(--font-display); font-size:18px; color:var(--text-dim); letter-spacing:4px; margin-bottom:16px; }
+.travel-bar { width:300px; height:4px; background:#1a1a24; overflow:hidden; }
+.travel-fill { height:100%; background:var(--gold); transition:width .3s; }
+
+/* Animations */
+@keyframes screenShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.shake { animation: screenShake .15s ease 3; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.fade-in { animation:fadeIn .5s ease; }
+
+/* Snow Particles */
+.snow-container { position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden; }
+.snowflake { position:absolute; color:#fff; opacity:.6; animation:snowfall linear infinite; }
+@keyframes snowfall { 0%{transform:translateY(-10px) rotate(0deg)} 100%{transform:translateY(100vh) rotate(360deg)} }
+
+/* Notification */
+.notif {
+  position:fixed; top:60px; left:50%; transform:translateX(-50%);
+  padding:10px 30px; background:#1a1a24ee;
+  border:1px solid var(--gold-dim); color:var(--gold); font-size:13px;
+  z-index:300; animation:notifIn .5s ease; pointer-events:none;
+  white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis;
+}
+@keyframes notifIn { from{opacity:0;transform:translateX(-50%) translateY(-20px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+/* ============================================================
+   MOBILE LAYOUT
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* Hide desktop-only elements */
+  .left-panel, .right-panel, .action-bar, .compass, .author-info { display:none !important; }
+
+  /* Game container: single column, full height */
+  .game-container {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr !important;
+    height: 100dvh !important;
+    overflow: hidden;
+  }
+
+  /* Top bar: auto height, wraps content */
+  .top-bar {
+    grid-column: 1 / -1;
+    height: auto !important;
+    min-height: 44px;
+    padding: 6px 10px;
+    gap: 4px;
+    flex-wrap: wrap;
+    flex-shrink: 0 !important;
+  }
+
+  .top-info {
+    flex: 0 0 100%;
+    order: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 0;
+  }
+
+  .stat-bars {
+    flex: 0 0 100%;
+    order: 2;
+    gap: 4px;
+    justify-content: flex-start;
+  }
+
+  .stat-bar { gap: 3px; }
+  .bar-track { width: 68px; height: 9px; }
+  .bar-value { font-size: 9px; min-width: 34px; }
+  .bar-label { font-size: 9px; min-width: 14px; }
+  .top-level { font-size: 12px; }
+  .top-gold { font-size: 12px; }
+  .top-time { font-size: 10px; margin-left: auto; }
+
+  /* Center panel: fills remaining grid row space */
+  .center-panel {
+    grid-column: 1 / -1;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+
+  /* Narrative area: scrollable, takes remaining space */
+  .narrative-area {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding: 12px 14px !important;
+  }
+
+  /* Choices area: NEVER shrink */
+  .choices-area {
+    flex-shrink: 0 !important;
+    padding: 6px 10px calc(8px + var(--safe-bottom)) !important;
+  }
+
+  .narr-text { font-size: 14px; line-height: 1.8; }
+  .narr-text.shout { font-size: 15px; }
+
+  .choice-btn { padding: 11px 12px; font-size: 13px; min-height: 44px; margin-bottom: 5px; }
+
+  /* Town panel */
+  .town-panel { padding: 10px; }
+  .town-name { font-size: 15px; }
+  .town-btn { padding: 11px 12px; font-size: 12px; min-height: 44px; }
+  .travel-btn { padding: 10px 12px; min-height: 40px; }
+
+  /* Title screen */
+  .title-dragon { font-size: 72px; }
+  .title-text { font-size: 30px; letter-spacing: 6px; }
+  .title-sub { font-size: 14px; letter-spacing: 4px; margin-bottom: 28px; }
+  .title-btn { width: 240px; font-size: 14px; padding: 14px 0; min-height: 48px; }
+
+  /* Character creation */
+  .race-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .race-card { padding: 8px 3px; }
+  .race-icon { font-size: 20px; }
+  .race-name { font-size: 10px; }
+  .race-bonus { display: none; }
+  .cc-confirm { padding: 14px 36px; }
+
+  /* Combat */
+  .combat-header { padding: 8px 12px; }
+  .combat-enemy-name { font-size: 18px; letter-spacing: 2px; }
+  .combat-scene { gap: 8px; padding: 4px 0; }
+  .enemy-visual { font-size: 56px; }
+  .enemy-hp-bar { width: 220px; height: 11px; }
+  .combat-log { margin: 0 10px; padding: 6px 10px; font-size: 11px; }
+  .combat-log-entry { font-size: 11px; }
+  .combat-actions { gap: 5px; padding: 8px 8px calc(8px + var(--safe-bottom)); max-height: 38vh; }
+  .combat-btn { padding: 9px 12px; font-size: 11px; letter-spacing: 0; }
+
+  /* Level up */
+  .levelup-title { font-size: 22px; letter-spacing: 4px; }
+  .levelup-attr { padding: 14px; width: 95px; }
+  .levelup-attr-icon { font-size: 24px; }
+  .levelup-attr-name { font-size: 12px; }
+
+  /* Modal */
+  .modal { padding: 18px 14px; max-height: 80vh; }
+  .modal-title { font-size: 16px; }
+  .modal-btn { padding: 12px; min-height: 44px; }
+
+  /* Shop */
+  .shop-item { padding: 10px 8px; min-height: 44px; }
+
+  /* Notification: above bottom nav */
+  .notif {
+    top: auto;
+    bottom: calc(var(--nav-height) + var(--safe-bottom) + 8px);
+    font-size: 12px;
+    padding: 8px 18px;
+  }
+
+  /* Travel */
+  .travel-text { font-size: 15px; letter-spacing: 2px; }
+  .travel-bar { width: 220px; }
+
+  /* Map */
+  .map-loc-icon { font-size: 14px; }
+  .map-loc-name { font-size: 8px; }
+
+  /* Inventory tooltip */
+  .inv-slot-tip { bottom: auto; top: 110%; left: 50%; transform: translateX(-50%); z-index: 200; }
+  .inv-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 6px; }
+  .inv-slot { font-size: 20px; }
+
+  /* Quest log */
+  .ql-item { padding: 8px 10px; min-height: 40px; }
+
+  /* Stats */
+  .stat-row { padding: 6px 0; }
+  .stat-name { font-size: 12px; }
+  .stat-val { font-size: 12px; }
+}
+
+/* ============================================================
+   MOBILE BOTTOM NAV
+   ============================================================ */
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: calc(var(--nav-height) + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: linear-gradient(0deg, #15151f, #0e0e16);
+    border-top: 1px solid var(--border);
+    z-index: 60;
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .mobile-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 4px 2px 0;
+    border-top: 2px solid transparent;
+    transition: all .2s;
+    min-width: 44px;
+  }
+
+  .mobile-nav-btn.active {
+    color: var(--gold);
+    border-top-color: var(--gold-dim);
+  }
+
+  .mobile-nav-btn .nav-icon {
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  /* Push content above fixed nav */
+  .game-container {
+    padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .bar-track { width: 52px; }
+  .title-text { font-size: 24px; }
+  .race-icon { font-size: 16px; }
+  .combat-btn { padding: 8px 8px; font-size: 10px; }
+  .levelup-attr { width: 80px; padding: 10px; }
+  .mobile-nav-btn { font-size: 9px; }
+  .mobile-nav-btn .nav-icon { font-size: 17px; }
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ============================================================
+// SKYRIM WEB RPG - CORE GAME ENGINE
+// ============================================================
+
+const RACES = [
+  { id:'nord', name:'诺德人', icon:'⚔️', bonus:'生命+20, 寒霜抗性+30%', stats:{hp:20,frost:30}, desc:'天霜省的原住民，强壮而勇猛' },
+  { id:'imperial', name:'帝国人', icon:'🛡️', bonus:'口才+10, 金币+50', stats:{speech:10,gold:50}, desc:'赛洛迪尔的帝国子民，善于交际' },
+  { id:'breton', name:'布莱顿人', icon:'🔮', bonus:'魔法+30, 魔抗+15%', stats:{mp:30,magicRes:15}, desc:'高岩省的半精灵后裔，天生魔法亲和' },
+  { id:'dunmer', name:'暗精灵', icon:'🔥', bonus:'毁灭+10, 火焰抗性+30%', stats:{destruction:10,fire:30}, desc:'晨风省的灰肤精灵，精通火焰魔法' },
+  { id:'altmer', name:'高精灵', icon:'✨', bonus:'魔法+50, 附魔+10', stats:{mp:50,enchant:10}, desc:'夏暮岛的高等精灵，最强大的魔法种族' },
+  { id:'bosmer', name:'木精灵', icon:'🏹', bonus:'弓术+10, 潜行+10', stats:{archery:10,sneak:10}, desc:'瓦伦木的绿肤精灵，天生的猎手' },
+  { id:'khajiit', name:'虎人', icon:'🐱', bonus:'潜行+15, 徒手+15', stats:{sneak:15,unarmed:15}, desc:'艾斯维尔的猫人种族，敏捷善战' },
+  { id:'argonian', name:'亚龙人', icon:'🦎', bonus:'开锁+10, 毒抗+50%', stats:{lockpick:10,poison:50}, desc:'黑沼泽的蜥蜴人，水陆两栖' },
+  { id:'orc', name:'兽人', icon:'💪', bonus:'重甲+10, 力量+15', stats:{heavyArmor:10,str:15}, desc:'奥辛纽姆的绿皮战士，最强的锻造师' },
+  { id:'redguard', name:'红卫人', icon:'⚡', bonus:'单手+10, 耐力+20', stats:{oneHand:10,sp:20}, desc:'哈默菲尔的沙漠战士，天生的剑客' },
+];
+
+const LOCATIONS = [
+  { id:'whiterun', name:'白漫城', icon:'🏰', x:48, y:55, type:'city', desc:'天霜省的商业中心，巨龙延伸宫坐落于此', region:'平原', shops:true },
+  { id:'solitude', name:'独孤城', icon:'🏛️', x:22, y:22, type:'city', desc:'天霜省首都，帝国军团驻地', region:'海岸', shops:true },
+  { id:'windhelm', name:'风盔城', icon:'🏔️', x:75, y:25, type:'city', desc:'风暴斗篷叛军的据点，最古老的城市', region:'冻原', shops:true },
+  { id:'riften', name:'裂谷城', icon:'🌊', x:78, y:72, type:'city', desc:'盗贼公会的秘密基地，位于湖畔', region:'秋林', shops:true },
+  { id:'markarth', name:'马卡斯城', icon:'⛏️', x:15, y:58, type:'city', desc:'矮人遗迹上建造的石城', region:'山脉', shops:true },
+  { id:'winterhold', name:'冬堡学院', icon:'🧙', x:72, y:12, type:'city', desc:'魔法学院所在地，曾经的辉煌之城', region:'冰原', shops:true },
+  { id:'dawnstar', name:'曙光镇', icon:'⭐', x:50, y:18, type:'town', desc:'北海岸的矿业小镇，常受噩梦困扰', region:'冻原', shops:true },
+  { id:'morthal', name:'迷城', icon:'🌫️', x:32, y:38, type:'town', desc:'沼泽中的神秘小镇，传闻有吸血鬼出没', region:'沼泽', shops:true },
+  { id:'falkreath', name:'法尔克里斯', icon:'🌲', x:38, y:78, type:'town', desc:'森林中的宁静小镇，拥有巨大的墓地', region:'森林', shops:true },
+  { id:'helgen', name:'海尔根', icon:'🔥', x:45, y:82, type:'ruin', desc:'被巨龙摧毁的小镇废墟', region:'山脉' },
+  { id:'riverwood', name:'河木镇', icon:'🏘️', x:44, y:68, type:'village', desc:'白漫城附近的伐木小村', region:'森林', shops:true },
+  { id:'highhrothgar', name:'高赫斯加', icon:'🗻', x:58, y:60, type:'temple', desc:'灰胡子隐士的山顶圣殿', region:'雪山' },
+  { id:'bleakfalls', name:'荒芜坠落墓穴', icon:'💀', x:42, y:64, type:'dungeon', desc:'古老的北欧墓穴，暗棺守卫游荡其中', region:'山脉' },
+  { id:'dragonsreach', name:'巨龙延伸宫', icon:'👑', x:48, y:53, type:'palace', desc:'白漫城领主的宫殿' },
+  { id:'watchtower', name:'西部瞭望塔', icon:'🗼', x:42, y:55, type:'landmark', desc:'白漫城西部的守卫塔', region:'平原' },
+  { id:'thalmor_embassy', name:'塞尔摩大使馆', icon:'🏛️', x:25, y:28, type:'dungeon', desc:'高精灵塞尔摩的外交据点', region:'海岸' },
+  { id:'labyrinthian', name:'迷宫遗迹', icon:'🏛️', x:38, y:35, type:'dungeon', desc:'远古北欧迷宫，龙祭司长眠之地', region:'山脉' },
+  { id:'skuldafn', name:'斯库达芬', icon:'🐉', x:85, y:35, type:'dungeon', desc:'奥杜因的神殿，通往冥界之门', region:'雪山' },
+  { id:'sovngarde', name:'索恩加德', icon:'✨', x:50, y:50, type:'special', desc:'北欧英灵殿', region:'异界' },
+  { id:'throat_of_world', name:'世界之喉', icon:'🏔️', x:58, y:58, type:'landmark', desc:'天霜省最高峰', region:'雪山' },
+  { id:'alduins_wall', name:'奥杜因之墙', icon:'🗿', x:30, y:65, type:'landmark', desc:'刀锋神殿中的古老石壁', region:'山脉' },
+];
+
+const ENEMIES = {
+  wolf:     { name:'野狼', icon:'🐺', hp:30, atk:8, def:2, xp:15, gold:0, loot:['狼皮'] },
+  bandit:   { name:'强盗', icon:'🗡️', hp:60, atk:14, def:6, xp:30, gold:15, loot:['铁剑','皮甲'] },
+  draugr:   { name:'尸鬼', icon:'💀', hp:80, atk:18, def:10, xp:45, gold:5, loot:['古诺德武器','尸鬼之眼'] },
+  skeleton: { name:'骷髅', icon:'☠️', hp:50, atk:12, def:4, xp:25, gold:3, loot:['骨粉','古币'] },
+  troll:    { name:'巨魔', icon:'👹', hp:150, atk:25, def:8, xp:80, gold:0, loot:['巨魔脂肪'] },
+  giant:    { name:'巨人', icon:'🦣', hp:250, atk:60, def:15, xp:120, gold:0, loot:['巨人脚趾'] },
+  dragon:   { name:'巨龙', icon:'🐉', hp:300, atk:40, def:20, xp:250, gold:100, loot:['龙骨','龙鳞','龙魂'] },
+  vampire:  { name:'吸血鬼', icon:'🧛', hp:120, atk:22, def:12, xp:70, gold:30, loot:['吸血鬼尘'] },
+  falmer:   { name:'雪精灵', icon:'👁️', hp:90, atk:20, def:8, xp:50, gold:10, loot:['夜锋毒液'] },
+  spider:   { name:'霜冻蜘蛛', icon:'🕷️', hp:45, atk:15, def:3, xp:20, gold:0, loot:['蜘蛛毒液'] },
+  mage:     { name:'术士', icon:'🧙', hp:70, atk:22, def:5, xp:55, gold:25, loot:['魔法卷轴','灵魂宝石'] },
+  alduin:   { name:'奥杜因·世界吞噬者', icon:'🐲', hp:800, atk:65, def:35, xp:1000, gold:0, loot:['奥杜因之角'] },
+  mirmulnir:{ name:'密穆尼尔', icon:'🐉', hp:250, atk:35, def:18, xp:200, gold:80, loot:['龙骨','龙鳞','龙魂'] },
+  dragonpriest:{ name:'龙祭司', icon:'👻', hp:350, atk:45, def:25, xp:300, gold:50, loot:['龙祭司面具'] },
+};
+
+const WEAPONS = [
+  { id:'fists', name:'拳头', icon:'👊', atk:3, weight:0, tier:0, type:'melee' },
+  { id:'iron_sword', name:'铁剑', icon:'🗡️', atk:8, weight:5, tier:1, type:'melee', price:50 },
+  { id:'iron_bow', name:'铁弓', icon:'🏹', atk:7, weight:4, tier:1, type:'ranged', price:45 },
+  { id:'steel_sword', name:'钢剑', icon:'⚔️', atk:14, weight:6, tier:2, type:'melee', price:120 },
+  { id:'steel_bow', name:'钢弓', icon:'🏹', atk:12, weight:5, tier:2, type:'ranged', price:100 },
+  { id:'dwarven_sword', name:'矮人剑', icon:'⚔️', atk:20, weight:8, tier:3, type:'melee', price:250 },
+  { id:'elven_sword', name:'精灵剑', icon:'⚔️', atk:26, weight:5, tier:4, type:'melee', price:400 },
+  { id:'glass_sword', name:'玻璃剑', icon:'⚔️', atk:32, weight:4, tier:5, type:'melee', price:600 },
+  { id:'ebony_sword', name:'乌木剑', icon:'⚔️', atk:38, weight:9, tier:6, type:'melee', price:900 },
+  { id:'daedric_sword', name:'魔族剑', icon:'⚔️', atk:46, weight:10, tier:7, type:'melee', price:1500 },
+  { id:'dragonbone_sword', name:'龙骨剑', icon:'⚔️', atk:52, weight:11, tier:8, type:'melee', price:2500 },
+  { id:'wuuthrad', name:'悲伤之锤', icon:'🪓', atk:40, weight:12, tier:6, type:'melee', special:'对精灵伤害+50%', questItem:true },
+  { id:'nightingale_blade', name:'夜莺之刃', icon:'🗡️', atk:35, weight:6, tier:5, type:'melee', special:'吸取生命', questItem:true },
+];
+
+const ARMORS = [
+  { id:'clothes', name:'平民衣物', icon:'👕', def:0, weight:1, tier:0, price:0 },
+  { id:'hide_armor', name:'皮甲', icon:'🥋', def:6, weight:5, tier:1, price:40 },
+  { id:'iron_armor', name:'铁甲', icon:'🛡️', def:12, weight:15, tier:2, price:100 },
+  { id:'steel_armor', name:'钢甲', icon:'🛡️', def:18, weight:18, tier:3, price:220 },
+  { id:'dwarven_armor', name:'矮人甲', icon:'🛡️', def:24, weight:22, tier:4, price:400 },
+  { id:'elven_armor', name:'精灵甲', icon:'🛡️', def:28, weight:8, tier:4, price:500 },
+  { id:'glass_armor', name:'玻璃甲', icon:'🛡️', def:32, weight:7, tier:5, price:750 },
+  { id:'ebony_armor', name:'乌木甲', icon:'🛡️', def:38, weight:25, tier:6, price:1200 },
+  { id:'daedric_armor', name:'魔族甲', icon:'🛡️', def:46, weight:28, tier:7, price:2000 },
+  { id:'dragonplate', name:'龙鳞甲', icon:'🛡️', def:52, weight:20, tier:8, price:3500 },
+];
+
+const POTIONS = [
+  { id:'hp_pot_s', name:'小型生命药水', icon:'❤️', effect:'hp', value:30, price:15, weight:0.5 },
+  { id:'hp_pot_m', name:'中型生命药水', icon:'❤️', effect:'hp', value:75, price:40, weight:0.5 },
+  { id:'hp_pot_l', name:'大型生命药水', icon:'❤️', effect:'hp', value:150, price:80, weight:0.5 },
+  { id:'mp_pot_s', name:'小型魔力药水', icon:'💜', effect:'mp', value:30, price:15, weight:0.5 },
+  { id:'mp_pot_m', name:'中型魔力药水', icon:'💜', effect:'mp', value:75, price:40, weight:0.5 },
+  { id:'sp_pot', name:'耐力药水', icon:'💚', effect:'sp', value:50, price:25, weight:0.5 },
+  { id:'resist_fire', name:'抗火药水', icon:'🔥', effect:'fireres', value:30, price:30, weight:0.5 },
+  { id:'resist_frost', name:'抗寒药水', icon:'❄️', effect:'frostres', value:30, price:30, weight:0.5 },
+];
+
+const SPELLS = [
+  { id:'flames', name:'火焰', icon:'🔥', cost:8, dmg:15, type:'destruction', element:'fire', desc:'双手喷射火焰' },
+  { id:'frostbite', name:'冰冻', icon:'❄️', cost:10, dmg:18, type:'destruction', element:'frost', desc:'释放冰霜冻结敌人' },
+  { id:'sparks', name:'电火花', icon:'⚡', cost:12, dmg:20, type:'destruction', element:'shock', desc:'释放闪电链' },
+  { id:'healing', name:'治疗术', icon:'💛', cost:12, heal:25, type:'restoration', desc:'恢复生命值' },
+  { id:'ward', name:'守护结界', icon:'🛡️', cost:15, shield:20, type:'restoration', desc:'抵挡伤害的魔法屏障' },
+  { id:'fireball', name:'火球术', icon:'☄️', cost:25, dmg:40, type:'destruction', element:'fire', desc:'投掷爆裂火球', reqLevel:8 },
+  { id:'ice_storm', name:'冰风暴', icon:'🌨️', cost:30, dmg:45, type:'destruction', element:'frost', desc:'召唤冰风暴', reqLevel:12 },
+  { id:'thunderbolt', name:'雷击', icon:'🌩️', cost:35, dmg:55, type:'destruction', element:'shock', desc:'强力雷电', reqLevel:15 },
+];
+
+const SHOUTS = [
+  { id:'fus_ro_dah', name:'不屈意志', words:['Fus','Ro','Dah'], icon:'💨', dmg:30, effect:'push', cooldown:20, desc:'将敌人震飞', chapter:3 },
+  { id:'yol_toor_shul', name:'烈焰吐息', words:['Yol','Toor','Shul'], icon:'🔥', dmg:50, effect:'burn', cooldown:30, desc:'喷射龙焰', chapter:5 },
+  { id:'fo_krah_diin', name:'霜冻吐息', words:['Fo','Krah','Diin'], icon:'❄️', dmg:40, effect:'freeze', cooldown:25, desc:'冰冻一切', chapter:7 },
+  { id:'tiid_klo_ul', name:'时间减缓', words:['Tiid','Klo','Ul'], icon:'⏳', dmg:0, effect:'slow', cooldown:40, desc:'减缓时间流逝', chapter:8 },
+  { id:'joor_zah_frul', name:'龙族末日', words:['Joor','Zah','Frul'], icon:'⚡', dmg:80, effect:'dragonrend', cooldown:15, desc:'迫使龙类降落', chapter:9 },
+];
+
+const MAIN_QUESTS = [
+  {
+    id:'mq1', chapter:1, name:'海尔根之劫', desc:'你作为囚犯被押往海尔根处刑，一条黑龙突然降临...',
+    location:'helgen', nextQuest:'mq2',
+    scenes: [
+      { text:'马车在崎岖的山路上颠簸前行。你双手被缚，与其他囚犯挤在一起。寒风刺骨，远方的雪山在晨光中闪耀着冷光。', choices:[{text:'环顾四周', next:1}] },
+      { text:'"嘿，你，终于醒了。"坐在你对面的诺德战士看着你说道，"你也是试图越境的时候被帝国军抓到的吧？跟我们一样。"', choices:[{text:'"我是谁？我在哪？"', next:2},{text:'沉默不语', next:2}] },
+      { text:'马车驶入一座小镇——海尔根。帝国士兵列队两旁，准备行刑。你看到一个身着华服的人——他是乌弗瑞克·风暴斗篷，叛军首领。', choices:[{text:'观察周围环境', next:3}] },
+      { text:'就在刽子手举起巨斧的瞬间——\n\n一声撕裂天空的怒吼响彻云霄。\n\n一条巨大的黑龙从山顶俯冲而下，张开血盆大口喷射出毁灭性的火焰！', choices:[{text:'趁乱逃跑！', next:4}] },
+      { text:'海尔根陷入地狱般的火海。建筑在龙焰中崩塌，人们在尖叫中四散奔逃。你在混乱中挣脱了束缚，跟着一名帝国士兵冲入了塔楼。', choices:[{text:'跟随帝国士兵哈德瓦', next:5},{text:'跟随风暴斗篷士兵雷洛夫', next:5}] },
+      { text:'你在燃烧的废墟中穿行，躲过龙的攻击，最终从一条地下通道逃出了海尔根。身后的小镇已化为灰烬。\n\n你获得了自由，但那条黑龙...它为什么会在这里？', choices:[{text:'前往河木镇寻求帮助', next:'complete'}] },
+    ],
+    rewards: { xp:100, items:['iron_sword','hide_armor','hp_pot_s','hp_pot_s'] }
+  },
+  {
+    id:'mq2', chapter:2, name:'白漫城求援', desc:'河木镇的居民请求你前往白漫城向领主报告龙的消息',
+    location:'whiterun', nextQuest:'mq3', requireQuest:'mq1',
+    scenes: [
+      { text:'你来到了白漫城——天霜省最繁华的城市。巨龙延伸宫矗立在城市最高处，雄伟壮观。城中商贩的叫卖声此起彼伏，卫兵巡逻街头。', choices:[{text:'前往巨龙延伸宫觐见领主', next:1}] },
+      { text:'领主巴格鲁夫坐在王座上，他的宫廷法师法伦加站在一旁。\n\n"你说海尔根被龙摧毁了？"领主皱起眉头，"这不可能...龙已经消失了数千年。"', choices:[{text:'"我亲眼所见，领主大人。那是一条巨大的黑龙。"', next:2},{text:'"请相信我，白漫城可能也会面临危险。"', next:2}] },
+      { text:'"领主大人，"法伦加走上前，"根据古籍记载，如果巨龙真的回归，那么...关于龙裔的预言也许会应验。"\n\n巴格鲁夫思考片刻："我需要你做一件事。我们的西部瞭望塔报告了可疑活动。去调查一下。"', choices:[{text:'"遵命，领主大人。"', next:3}] },
+      { text:'你从领主那里获得了一些装备补给。宫廷法师法伦加请求你在途中寻找一块龙之石碑——一件远古遗物，可能揭示龙族回归的秘密。\n\n白漫城的卫队长艾里拉将陪同你前往瞭望塔。', choices:[{text:'准备出发', next:'complete'}] },
+    ],
+    rewards: { xp:150, gold:200, items:['steel_sword','iron_armor','hp_pot_m'] }
+  },
+  {
+    id:'mq3', chapter:3, name:'西部瞭望塔', desc:'前往白漫城西部瞭望塔调查龙的踪迹',
+    location:'watchtower', nextQuest:'mq4', requireQuest:'mq2',
+    scenes: [
+      { text:'你与卫队来到了西部瞭望塔。塔楼已经被部分摧毁，浓烟从废墟中升起。几具卫兵的尸体横躺在地。', choices:[{text:'搜索幸存者', next:1}] },
+      { text:'一名受伤的卫兵从瓦砾后爬出："它...它还在附近！是条龙！我看到它飞向——"\n\n天空中传来震耳欲聋的咆哮。一条巨大的飞龙正向你们俯冲而来！', choices:[{text:'拔剑迎战！', next:'combat', combat:'mirmulnir'}] },
+      { text:'巨龙坠落在地，最后的生命在它的双眼中消逝。然后，不可思议的事情发生了——\n\n龙的身体开始燃烧，一股灿烂的金光从龙的残躯中涌出，如同河流一般涌入你的体内！', choices:[{text:'感受这股力量', next:3}] },
+      { text:'你感到一股远古的力量在血脉中觉醒。灵魂深处，一个声音在呼唤——"Dovahkiin...龙裔..."\n\n卫兵们惊恐而敬畏地看着你。"你...你吸收了龙的灵魂！你是龙裔！"', important:true, choices:[{text:'"龙裔...这意味着什么？"', next:4}] },
+      { text:'远方的高山上，一声如雷鸣般的呼唤响彻天地——\n\n"DO-VAH-KIIN！"\n\n那是灰胡子们的召唤。他们居住在世界之喉山顶的高赫斯加圣殿，是龙吼之力的守护者。\n\n你必须前往高赫斯加，了解你作为龙裔的使命。', choices:[{text:'回白漫城复命，然后踏上旅程', next:'complete'}] },
+    ],
+    rewards: { xp:300, gold:300, items:['hp_pot_m','mp_pot_s'], shout:'fus_ro_dah' }
+  },
+  {
+    id:'mq4', chapter:4, name:'高赫斯加之路', desc:'攀登七千阶，前往灰胡子的圣殿',
+    location:'highhrothgar', nextQuest:'mq5', requireQuest:'mq3',
+    scenes: [
+      { text:'世界之喉——天霜省最高的山峰。你站在山脚下仰望，七千阶石阶消失在云雾之中。寒风呼啸，冰雪覆盖一切。', choices:[{text:'开始攀登', next:1}] },
+      { text:'攀登的道路漫长而艰辛。暴风雪在山腰处肆虐，你几次差点被风吹下悬崖。路上你击退了几只冰霜巨魔，终于来到了圣殿门前。', choices:[{text:'推开石门', next:2}] },
+      { text:'四位灰胡子在大殿中等待着你。他们的领袖阿恩盖尔走上前来。\n\n"龙裔，我们感应到了你的觉醒。龙吼之力——Thu\'um——是你与生俱来的天赋。但它需要修炼和控制。"', choices:[{text:'"请教导我。"', next:3}] },
+      { text:'灰胡子们教导你龙吼的奥义。你学会了如何将"Fus Ro Dah"——不屈意志的力量凝聚于声音之中。\n\n"但你的学习之路才刚开始。"阿恩盖尔说道，"在荒芜坠落墓穴中，有一块龙之石碑。取回它，我们才能揭示更多关于龙族回归的真相。"', choices:[{text:'接受任务', next:'complete'}] },
+    ],
+    rewards: { xp:200, gold:0 }
+  },
+  {
+    id:'mq5', chapter:5, name:'探索焚灵殿', desc:'深入荒芜坠落墓穴，取回龙之石碑',
+    location:'bleakfalls', nextQuest:'mq6', requireQuest:'mq4',
+    scenes: [
+      { text:'荒芜坠落墓穴——一座嵌入山体的远古北欧墓穴。入口处寒气逼人，蛛网密布。阴暗的甬道中传来令人不安的声响。', choices:[{text:'点燃火把，深入墓穴', next:1}] },
+      { text:'墓穴内部比你想象的更加庞大。你穿过布满机关陷阱的走廊，击败了盘踞在此的强盗和巨型蜘蛛。\n\n在更深处，尸鬼从石棺中复苏，它们闪着幽蓝色光芒的眼睛在黑暗中令人胆寒。', choices:[{text:'与尸鬼战斗', next:'combat', combat:'draugr'}] },
+      { text:'在墓穴的最深处，你发现了一面巨大的文字墙。远古的龙文在石壁上发出幽光，当你靠近时，其中一个词语突然闪耀起来——知识直接灌入你的脑海。\n\n你领悟了新的龙吼之力。', important:true, choices:[{text:'取走龙之石碑', next:3}] },
+      { text:'你带着龙之石碑回到白漫城。法伦加对石碑进行研究后，面色凝重。\n\n"这上面记载着一个古老的预言...奥杜因，世界吞噬者，传说中的第一条龙...它回来了。那条在海尔根出现的黑龙，就是奥杜因。"\n\n"只有龙裔才能阻止它。"', choices:[{text:'"我该怎么做？"', next:4}] },
+      { text:'"目前还不清楚，"法伦加摇头，"但我从线人那里得知，塞尔摩大使馆可能掌握着关于龙族回归的秘密。他们一直在暗中调查此事。"\n\n看来你需要潜入塞尔摩大使馆。但首先，你需要找到帮手和情报。', choices:[{text:'开始准备', next:'complete'}] },
+    ],
+    rewards: { xp:350, gold:200, items:['dwarven_sword','steel_armor'], shout:'yol_toor_shul' }
+  },
+  {
+    id:'mq6', chapter:6, name:'外交豁免', desc:'潜入塞尔摩大使馆，揭露高精灵的秘密',
+    location:'thalmor_embassy', nextQuest:'mq7', requireQuest:'mq5',
+    scenes: [
+      { text:'在德尔芬的帮助下，你伪装成宾客混入了塞尔摩大使馆的宴会。金碧辉煌的大厅中，高精灵贵族们推杯换盏，谈笑风生。', choices:[{text:'找机会溜进后厅', next:1},{text:'先收集情报再行动', next:1}] },
+      { text:'你成功潜入了大使馆的档案室。在翻阅机密文件时，你发现了惊人的真相：\n\n塞尔摩并非龙族回归的幕后黑手——他们同样对此束手无策。但他们一直在追踪一个名叫"艾斯本"的刀锋会成员，此人据说知道击败奥杜因的方法。', choices:[{text:'继续搜索', next:2}] },
+      { text:'警报响起！你被发现了。塞尔摩士兵从各个方向涌来。', choices:[{text:'战斗突围！', next:'combat', combat:'mage'}] },
+      { text:'你从大使馆中杀出一条血路，带着关键情报逃脱。\n\n文件显示，艾斯本藏身于裂谷城的下水道中。他是最后的刀锋会成员，据说掌握着关于"奥杜因之墙"的秘密——一件能揭示击败世界吞噬者方法的远古遗物。', choices:[{text:'前往裂谷城寻找艾斯本', next:'complete'}] },
+    ],
+    rewards: { xp:400, gold:400, items:['elven_sword','hp_pot_m','hp_pot_m'] }
+  },
+  {
+    id:'mq7', chapter:7, name:'迷宫遗迹', desc:'在裂谷城找到艾斯本，探索远古遗迹',
+    location:'labyrinthian', nextQuest:'mq8', requireQuest:'mq6',
+    scenes: [
+      { text:'你在裂谷城肮脏的下水道——"鼠道"中找到了老迈的刀锋会成员艾斯本。他躲在一间布满古籍的密室中。\n\n"龙裔...我等这一天等了很久。"他的眼中闪烁着光芒。', choices:[{text:'"告诉我关于奥杜因之墙的事。"', next:1}] },
+      { text:'"奥杜因之墙在天际祭坛——刀锋会的秘密圣殿中。但通往那里的路径需要经过迷宫遗迹，一座远古的北欧迷宫。\n\n那里有龙祭司把守，极其危险。但我们别无选择。"', choices:[{text:'出发前往迷宫遗迹', next:2}] },
+      { text:'迷宫遗迹是你见过的最宏伟的地下建筑。巨大的石柱撑起数十米高的穹顶，远古的魔法符文在墙壁上闪烁。\n\n但这里同样危险——尸鬼和龙祭司的仆从在暗处游荡。', choices:[{text:'深入迷宫', next:'combat', combat:'draugr'}] },
+      { text:'在迷宫最深处，你遭遇了一名龙祭司——远古时代侍奉龙的强大亡灵法师。它悬浮在空中，面具后发出令人毛骨悚然的声音。', choices:[{text:'与龙祭司决战！', next:'combat', combat:'dragonpriest'}] },
+      { text:'龙祭司倒下了。你从它手中夺取了一把古老的钥匙和一个龙祭司面具——一件强大的远古遗物。\n\n迷宫的尽头是一条通往天际祭坛的密道。奥杜因之墙就在那里等待着你。', choices:[{text:'进入天际祭坛', next:'complete'}] },
+    ],
+    rewards: { xp:500, gold:300, items:['glass_sword','hp_pot_l'], shout:'fo_krah_diin' }
+  },
+  {
+    id:'mq8', chapter:8, name:'奥杜因之墙', desc:'在天际祭坛中解读奥杜因之墙的秘密',
+    location:'alduins_wall', nextQuest:'mq9', requireQuest:'mq7',
+    scenes: [
+      { text:'天际祭坛——刀锋会数千年的秘密圣殿。巨大的石壁上雕刻着一幅横跨整面墙壁的浮雕——奥杜因之墙。\n\n艾斯本和德尔芬在你身旁，注视着这面承载着远古秘密的石壁。', choices:[{text:'研读石壁上的浮雕', next:1}] },
+      { text:'浮雕讲述了一个远古的故事：\n\n在龙之战争时代，三位古代英雄使用一种特殊的龙吼——"龙族末日"(Dragonrend)——击败了奥杜因，将它驱逐到了时间之流中。\n\n但奥杜因并没有被消灭，它只是被流放了...而现在，它回来了。', choices:[{text:'"那个龙吼...Dragonrend...我该如何学会它？"', next:2}] },
+      { text:'"问题在于，"艾斯本说，"Dragonrend是凡人创造的龙吼，它从未被记录在任何文字墙上。唯一知道这个龙吼的人...是那三位已经死去数千年的英雄。"\n\n德尔芬思考片刻："也许...灰胡子知道办法。他们的领袖帕图纳斯可能有答案。"', choices:[{text:'返回高赫斯加', next:3}] },
+      { text:'你回到高赫斯加，向灰胡子们讲述了在奥杜因之墙上发现的秘密。\n\n阿恩盖尔叹了口气："有一个办法...上古卷轴。传说上古卷轴能打开时间裂缝，让你回到过去，直接从那三位英雄那里学习Dragonrend。\n\n但上古卷轴极其危险，直视它的人可能会失明甚至疯狂。"\n\n你需要找到一份上古卷轴。', choices:[{text:'接受挑战', next:'complete'}] },
+    ],
+    rewards: { xp:400, gold:200, shout:'tiid_klo_ul' }
+  },
+  {
+    id:'mq9', chapter:9, name:'喉咙世界之巅', desc:'使用上古卷轴学习Dragonrend，在世界之喉与奥杜因对决',
+    location:'throat_of_world', nextQuest:'mq10', requireQuest:'mq8',
+    scenes: [
+      { text:'经过艰苦的搜寻，你终于获得了一份上古卷轴。现在你站在世界之喉的山巅——这里是时间与空间最薄弱的地方。\n\n帕图纳斯——灰胡子的领袖，一条远古巨龙——在山顶等待着你。', choices:[{text:'打开上古卷轴', next:1}] },
+      { text:'你展开上古卷轴。光芒灼烧你的双眼，现实开始扭曲——\n\n时间裂缝在你面前撕开。你看到了数千年前的世界之喉。三位远古英雄正与奥杜因在这里殊死搏斗。', choices:[{text:'注视战斗，学习他们的龙吼', next:2}] },
+      { text:'"JOOR ZAH FRUL！"\n\n三位英雄齐声呐喊，一道紫色的光芒击中奥杜因，将这条不朽的巨龙强行拉回大地。龙族末日——迫使龙族体会凡人的死亡恐惧的龙吼。\n\n你感受到了这个龙吼的力量，它铭刻进了你的灵魂。', important:true, choices:[{text:'关闭上古卷轴', next:3}] },
+      { text:'时间裂缝关闭的瞬间，天空骤然变暗。一个巨大的黑影从云层中俯冲而下——\n\n奥杜因来了。\n\n"Dovahkiin...你以为凡人的把戏能阻止我吗？我是不朽的！我是世界的终结！"', choices:[{text:'"JOOR ZAH FRUL！" 使用龙族末日！', next:'combat', combat:'alduin_1'}] },
+      { text:'奥杜因被你的龙族末日击落，在激烈的战斗后，它发出愤怒的咆哮：\n\n"这还没有结束，Dovahkiin！你无法在这里杀死我...我会在索恩加德等待你...在那里，我将吞噬所有英灵的灵魂！"\n\n奥杜因展翅飞走，消失在一道时空裂缝中。', choices:[{text:'"它去了索恩加德...我必须追上它。"', next:5}] },
+      { text:'帕图纳斯降落在你身旁："龙裔，你做得很好。但奥杜因逃往了索恩加德——北欧英灵的安息之地。\n\n要追踪它，你需要前往斯库达芬神殿，那里有通往索恩加德的传送门。但那里重兵把守。\n\n准备好了吗？这将是最后的战斗。"', choices:[{text:'"我准备好了。"', next:'complete'}] },
+    ],
+    rewards: { xp:600, gold:500, shout:'joor_zah_frul' }
+  },
+  {
+    id:'mq10', chapter:10, name:'索恩加德', desc:'进入英灵殿，与奥杜因进行最终决战',
+    location:'sovngarde', nextQuest:null, requireQuest:'mq9',
+    scenes: [
+      { text:'你闯入斯库达芬神殿，击败了守卫的龙祭司，穿过通往索恩加德的传送门。\n\n眼前的景象令你屏息——\n\n无尽的极光在天空中舞动，广阔的草原上鲜花盛开，远处一座金色的大殿闪耀着永恒的光辉。这就是索恩加德——英雄们死后灵魂安息的天堂。', choices:[{text:'向英灵殿前进', next:1}] },
+      { text:'但一层浓重的迷雾笼罩着索恩加德——那是奥杜因的杰作。它在这里吞噬英灵的灵魂以恢复力量。\n\n三位远古英雄的灵魂出现在你面前："龙裔，我们等待了数千年。让我们一起用晴空之吼驱散迷雾，然后...终结这一切。"', choices:[{text:'与三位英雄一起呐喊', next:2}] },
+      { text:'四道声音汇聚成一股洪流，龙吼之力撕裂了迷雾。天空重现，金色的阳光洒落大地。\n\n奥杜因从天而降，它的身体笼罩着黑色的火焰，双眼如同两颗燃烧的红日。\n\n"尔等敢来我的领域？今天就是你们永远的终结！"\n\n最终决战开始了。', choices:[{text:'拔出武器，迎接最终之战！', next:'combat', combat:'alduin'}] },
+      { text:'奥杜因发出最后的哀嚎。它的身体在光芒中碎裂，黑色的灵魂被撕碎消散在永恒之风中。\n\n世界吞噬者...终于陨落了。\n\n三位远古英雄向你行礼："龙裔，你完成了我们未竟的事业。天霜省因你而获得了和平。"', important:true, choices:[{text:'接受英雄们的祝福', next:4}] },
+      { text:'索恩加德的英灵们齐聚一堂，为你歌唱赞歌。远古的旋律在永恒的天空中回荡。\n\n帕图纳斯将你送回了世界之喉的山顶。天空中，数十条巨龙齐聚，向你——真正的龙裔——致以最高的敬意。\n\n它们的咆哮声如同雷鸣般响彻整个天霜省：\n\n"Dovahkiin！Dovahkiin！"', important:true, choices:[{text:'眺望天霜省的壮丽景色', next:5}] },
+      { text:'你站在世界之巅，俯瞰这片你用生命守护的土地。从白漫城的平原到风盔城的冻原，从独孤城的海岸到裂谷城的秋林...\n\n奥杜因已经陨落，但天霜省的故事远未结束。作为龙裔，你的传奇才刚刚开始。\n\n\n—— 主线完结 ——\n天霜省的冒险仍在继续...', choices:[{text:'继续探索天霜省', next:'complete'}] },
+    ],
+    rewards: { xp:1500, gold:2000, items:['dragonbone_sword','dragonplate'] }
+  },
+];
+
+const SIDE_QUEST_CHAINS = {
+  companions: {
+    name:'同伴团', faction:'同伴团', location:'whiterun', icon:'⚔️',
+    quests: [
+      { id:'comp1', name:'加入同伴团', desc:'在白漫城约尔巴斯克尔大厅证明你的实力',
+        scenes:[
+          {text:'约尔巴斯克尔大厅——白漫城中同伴团的据点。一群战士正在院子里切磋武艺。首领柯达拉克·白鬃注视着你。\n\n"想加入同伴团？先让我看看你的本事。"',choices:[{text:'接受挑战',next:1}]},
+          {text:'你与维拉斯进行了一场激烈的切磋。她的双手剑迅猛而精准，但你巧妙地化解了每一击。\n\n"不错，"柯达拉克点头，"你被接纳了。从今天起，你就是同伴团的新血。"',choices:[{text:'正式加入同伴团',next:'complete'}]},
+        ],
+        rewards:{xp:100,gold:50}
+      },
+      { id:'comp2', name:'银手之患', desc:'调查银手组织对同伴团的袭击',
+        scenes:[
+          {text:'同伴团遭到了银手组织的突袭。这些狂热的狼人猎手在夜间袭击了约尔巴斯克尔，偷走了同伴团的圣物——伊丝格拉默之碎片。',choices:[{text:'追踪银手',next:1}]},
+          {text:'在追击的过程中，你发现了同伴团核心圈子的秘密——他们是狼人。在月光下，你的战友展示了他们的兽化形态。\n\n"这是赫辛的赐福，也是诅咒。"斯科尔说道，"你愿意接受这份力量吗？"',choices:[{text:'接受狼人血脉',next:2},{text:'拒绝，但继续帮助同伴团',next:2}]},
+          {text:'你协助同伴团击退了银手，但伊丝格拉默之碎片仍在敌人手中。需要深入银手的堡垒才能夺回。',choices:[{text:'继续追踪',next:'complete'}]},
+        ],
+        rewards:{xp:200,gold:100}
+      },
+      { id:'comp3', name:'悲伤之锤', desc:'找回传说中的战斧——悲伤之锤(伍斯拉德)',
+        scenes:[
+          {text:'线索指向伊斯特马克的一座远古墓穴。伊丝格拉默之碎片可以重铸为传说中的战斧——悲伤之锤(伍斯拉德)，一件对抗精灵的神器。',choices:[{text:'深入墓穴',next:'combat',combat:'draugr'}]},
+          {text:'在墓穴深处，你找到了最后的碎片和远古的锻造图纸。天际炼炉——唯一能重铸这件神器的地方。\n\n经过艰苦的锻造，悲伤之锤重见天日。它散发着远古的力量。',important:true,choices:[{text:'举起悲伤之锤',next:2}]},
+          {text:'【主线关联】悲伤之锤不仅对精灵有特效，古籍记载它也是远古时代对抗巨龙的神兵之一。在未来对抗奥杜因的战斗中，它将是你最强大的武器之一。',choices:[{text:'接受悲伤之锤',next:'complete'}]},
+        ],
+        rewards:{xp:400,gold:200,items:['wuuthrad']},
+        mainQuestHook:'mq9'
+      },
+    ]
+  },
+  thieves: {
+    name:'盗贼公会', faction:'盗贼公会', location:'riften', icon:'🗝️',
+    quests: [
+      { id:'thief1', name:'蜜糖与暗影', desc:'在裂谷城找到盗贼公会的入口',
+        scenes:[
+          {text:'裂谷城的下水道中，一个名叫布林约夫的男人向你提出了一笔交易。\n\n"帮我完成一个小任务，我就带你见识真正的盗贼公会。"',choices:[{text:'接受任务',next:1}]},
+          {text:'你成功在集市上完成了一次漂亮的嫁祸行动，将一枚偷来的戒指塞进了目标的口袋。\n\n布林约夫赞赏地点头："欢迎来到盗贼公会。"他打开了一扇隐藏的门，通往地下酒馆"焦炎"。',choices:[{text:'进入盗贼公会',next:'complete'}]},
+        ],
+        rewards:{xp:100,gold:100}
+      },
+      { id:'thief2', name:'权力之网', desc:'调查盗贼公会日渐衰落的原因',
+        scenes:[
+          {text:'盗贼公会风光不再。任务失败率居高不下，好运似乎完全抛弃了这里。公会领袖梅瑟·弗雷命你调查原因。',choices:[{text:'开始调查',next:1}]},
+          {text:'经过多次任务和调查，你发现了一个惊人的事实——梅瑟·弗雷背叛了公会！他偷走了夜莺守护的好运符文，正在暗中掏空公会。\n\n更令人意外的是，在他的私人金库中，你发现了大量关于塞尔摩的机密文件。',choices:[{text:'继续深挖',next:'complete'}]},
+        ],
+        rewards:{xp:250,gold:200}
+      },
+      { id:'thief3', name:'夜莺之契', desc:'成为夜莺，揭露塞尔摩的秘密',
+        scenes:[
+          {text:'你与卡莉娅和布林约夫在夜莺大厅中立下契约，成为暗影女神诺克图娜尔的夜莺守护者。\n\n你获得了夜莺装备和能力——这让你的潜行能力大幅提升。',choices:[{text:'追踪梅瑟·弗雷',next:1}]},
+          {text:'在追踪中，你截获了梅瑟与塞尔摩的通信记录。这些情报揭示了塞尔摩在天霜省的间谍网络和他们对龙裔的追踪计划。',choices:[{text:'击败梅瑟·弗雷',next:'combat',combat:'bandit'}]},
+          {text:'【主线关联】从梅瑟处获得的塞尔摩情报对你潜入塞尔摩大使馆至关重要。有了这些情报，你知道了大使馆的布局、巡逻路线和机密档案的存放位置。\n\n这将大大提高外交豁免任务的成功率。',choices:[{text:'带走情报',next:'complete'}]},
+        ],
+        rewards:{xp:400,gold:500,items:['nightingale_blade']},
+        mainQuestHook:'mq6'
+      },
+    ]
+  },
+  college: {
+    name:'法师学院', faction:'冬堡学院', location:'winterhold', icon:'🔮',
+    quests: [
+      { id:'col1', name:'初入学院', desc:'通过入学考试，加入冬堡法师学院',
+        scenes:[
+          {text:'冬堡——曾经辉煌的魔法之城，如今大部分已坍塌入海。唯有法师学院依然矗立在悬崖之上。\n\n守门人法拉尔达挡住你的去路："要进入学院，你必须展示你的魔法天赋。"',choices:[{text:'施展魔法通过测试',next:1}]},
+          {text:'你成功展示了魔法能力。法拉尔达带你穿过摇摇欲坠的石桥，进入学院内部。\n\n大法师萨沃斯·阿瑞恩迎接了你："欢迎来到冬堡学院。这里是天霜省最后的魔法圣地。"',choices:[{text:'正式入学',next:'complete'}]},
+        ],
+        rewards:{xp:100,gold:0,items:['mp_pot_s','mp_pot_s']}
+      },
+      { id:'col2', name:'赛恩穆丹遗迹', desc:'协助学院探索矮人遗迹',
+        scenes:[
+          {text:'学院在一处矮人遗迹中发现了异常的魔法波动。导师托尔弗迪尔带领你和其他学徒前去调查。',choices:[{text:'进入矮人遗迹',next:1}]},
+          {text:'遗迹深处，你发现了一个被封印的球体——"马格努斯之眼"。这个远古矮人装置似乎能操控魔法本身。\n\n但一个神秘的精灵出现了，警告你不要触碰它："这东西太危险了。"',choices:[{text:'带回学院研究',next:'combat',combat:'falmer'}]},
+          {text:'马格努斯之眼被带回学院，但关于它的争论愈发激烈。同时，你在遗迹中还发现了关于上古卷轴的线索。',choices:[{text:'继续研究',next:'complete'}]},
+        ],
+        rewards:{xp:250,gold:150}
+      },
+      { id:'col3', name:'上古卷轴', desc:'通过学院的资源获取上古卷轴',
+        scenes:[
+          {text:'你在学院的禁书区找到了关于上古卷轴的记载。院内的占卜师乌拉格知道一份上古卷轴的下落——它被封存在黑塔深处的一个矮人装置中。',choices:[{text:'前往黑塔',next:1}]},
+          {text:'在黑塔的最深处，你面对了各种矮人机关和法尔莫精灵的阻击，终于找到了上古卷轴。\n\n它散发着扭曲现实的光芒，你甚至不敢直视。',choices:[{text:'小心取走上古卷轴',next:'combat',combat:'falmer'}]},
+          {text:'【主线关联】这份上古卷轴正是你在世界之喉上需要使用的！它能打开时间裂缝，让你回到过去学习"龙族末日"龙吼。\n\n没有法师学院的帮助，你永远无法找到这件远古遗物。',important:true,choices:[{text:'带着上古卷轴离开',next:'complete'}]},
+        ],
+        rewards:{xp:500,gold:300,items:['ebony_sword']},
+        mainQuestHook:'mq9'
+      },
+    ]
+  },
+  darkbrotherhood: {
+    name:'黑暗兄弟会', faction:'黑暗兄弟会', location:'falkreath', icon:'🗡️',
+    quests: [
+      { id:'db1', name:'与虚无共眠', desc:'一个神秘的组织在暗中注视你',
+        scenes:[
+          {text:'你在法尔克里斯的旅馆中醒来时，枕头上放着一张黑色的纸条和一朵干枯的夜灵花。\n\n纸条上只有一行字："我们知道你做了什么。"\n\n——黑色手掌印记',choices:[{text:'调查这个神秘组织',next:1}]},
+          {text:'你按照线索来到一间废弃的小屋，醒来时发现自己被绑在椅子上。一个戴着兜帽的女人坐在你对面。\n\n"我是阿斯特里德，黑暗兄弟会的领袖。你的「才能」引起了我们的注意。想加入吗？"',choices:[{text:'加入黑暗兄弟会',next:'complete'},{text:'（假装加入以获取情报）',next:'complete'}]},
+        ],
+        rewards:{xp:100,gold:200}
+      },
+      { id:'db2', name:'暗影契约', desc:'执行黑暗兄弟会的任务',
+        scenes:[
+          {text:'黑暗兄弟会的圣所隐藏在法尔克里斯的瀑布之后。在这里，你遇到了各种奇特的杀手同伴。\n\n"虚无之母有话对你说，"保姆西塞罗疯疯癫癫地说，"她看到了龙的阴影..."',choices:[{text:'聆听虚无之母的低语',next:1}]},
+          {text:'你执行了数个暗杀任务，逐渐在兄弟会中建立了地位。在一次任务中，你潜入了一个龙之邪教的秘密集会。\n\n他们在崇拜奥杜因，试图通过黑暗仪式加速龙族的回归！',choices:[{text:'深入调查龙之邪教',next:'complete'}]},
+        ],
+        rewards:{xp:300,gold:400}
+      },
+      { id:'db3', name:'龙之邪教', desc:'揭露龙之邪教的阴谋',
+        scenes:[
+          {text:'龙之邪教的总部隐藏在一座远古墓穴中。他们正在进行一个可怕的仪式——试图召唤更多巨龙。',choices:[{text:'阻止仪式',next:'combat',combat:'mage'}]},
+          {text:'你成功粉碎了邪教的仪式，并在他们的文件中发现了重要信息：\n\n奥杜因并非随机回归——它被一个远古预言所引导。这些邪教徒的仪式虽然失败了，但奥杜因已经在从各处召唤龙族复活。',choices:[{text:'带走情报',next:2}]},
+          {text:'【主线关联】邪教的文件揭示了奥杜因在天霜省复活巨龙的规律和地点。这些情报将帮助你预判奥杜因的下一步行动，在最终决战前做好准备。',choices:[{text:'回报黑暗兄弟会',next:'complete'}]},
+        ],
+        rewards:{xp:400,gold:500},
+        mainQuestHook:'mq10'
+      },
+    ]
+  },
+  civilwar: {
+    name:'内战', faction:'天霜内战', location:'solitude', icon:'⚔️',
+    quests: [
+      { id:'cw1', name:'选择阵营', desc:'帝国军团还是风暴斗篷？',
+        scenes:[
+          {text:'天霜省正在经历一场血腥的内战。帝国军团驻守独孤城，维护帝国的统一；风暴斗篷占据风盔城，为天霜省的独立而战。\n\n两边都在积极招募战士。你的选择将影响天霜省的命运。',choices:[{text:'加入帝国军团（独孤城）',next:1},{text:'加入风暴斗篷（风盔城）',next:1}]},
+          {text:'你选择了你的阵营。指挥官交给你第一个任务——夺取一座关键要塞。\n\n"这场战争比你想象的更复杂，"指挥官说，"不仅仅是帝国与叛军的对抗。塞尔摩在背后操控着一切。"',choices:[{text:'执行任务',next:'combat',combat:'bandit'}]},
+          {text:'你在战斗中表现出色，赢得了阵营的信任。内战的走向正在因你而改变。',choices:[{text:'继续参战',next:'complete'}]},
+        ],
+        rewards:{xp:200,gold:200}
+      },
+      { id:'cw2', name:'决战前夕', desc:'为最终决战争取盟友',
+        scenes:[
+          {text:'内战进入白热化。你参与了多场战役，攻城掠地，逐渐成为阵营中的核心战士。\n\n但你意识到，无论哪一方获胜，真正的敌人是奥杜因和龙族。',choices:[{text:'尝试促成停战',next:1}]},
+          {text:'在你的斡旋下，帝国军团和风暴斗篷同意暂时停火，共同面对龙族的威胁。\n\n这是天霜省历史上第一次，两个敌对阵营在同一面旗帜下并肩作战。',choices:[{text:'达成停战协议',next:2}]},
+          {text:'【主线关联】你在内战中获得的盟友——无论是帝国军团还是风暴斗篷——都将在最终对抗奥杜因时提供援助。他们的士兵将在斯库达芬为你争取时间，让你能够进入索恩加德。',choices:[{text:'准备最终决战',next:'complete'}]},
+        ],
+        rewards:{xp:500,gold:500},
+        mainQuestHook:'mq10'
+      },
+    ]
+  },
+};
+
+const RANDOM_QUEST_TEMPLATES = [
+  { type:'hunt', name:'猎杀{enemy}', desc:'消灭{location}附近出没的{enemy}', icon:'⚔️',
+    enemies:['wolf','bandit','draugr','skeleton','spider'], xpMult:1, goldMult:1 },
+  { type:'gather', name:'采集{item}', desc:'为{npc}收集{count}份{item}', icon:'🌿',
+    items:['雪莓','蓝色山花','铁矿石','皮革','月光草'], xpMult:0.7, goldMult:1.2 },
+  { type:'escort', name:'护送商人', desc:'护送商队安全抵达{destination}', icon:'🛒',
+    xpMult:1.2, goldMult:1.5 },
+  { type:'investigate', name:'调查{event}', desc:'调查{location}附近的神秘{event}', icon:'🔍',
+    events:['失踪事件','异常声响','幽灵目击','古墓异动','盗匪踪迹'], xpMult:1.1, goldMult:0.8 },
+  { type:'clear', name:'清剿{dungeon}', desc:'清除{dungeon}中的所有敌人', icon:'💀',
+    dungeons:['废弃矿洞','远古墓穴','强盗营地','蜘蛛巢穴','吸血鬼巢穴'], xpMult:1.5, goldMult:1.3 },
+];
+
+const NPC_NAMES = ['格尔达','尤里克','卡拉','阿尔沃','法恩达尔','席尔达','托尔斯坦','英格丽德','贝莱瑟','维尔玛'];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let G = {
+  screen: 'title',
+  player: null,
+  currentLocation: 'helgen',
+  mainQuestProgress: 0,
+  completedQuests: [],
+  activeQuests: [],
+  sideQuestProgress: { companions:0, thieves:0, college:0, darkbrotherhood:0, civilwar:0 },
+  randomQuests: [],
+  activeRandomQuest: null,
+  townReputation: {},
+  narrative: [],
+  choices: [],
+  currentScene: null,
+  sceneIndex: 0,
+  combat: null,
+  dayTime: 8,
+  day: 1,
+  weather: 'clear',
+  discoveredLocations: ['helgen'],
+  travelProgress: 0,
+  travelTarget: null,
+  notifications: [],
+  shoutCooldowns: {},
+  mobileTab: 'story',
+  shopOpen: false,
+  shopItems: null,
+  pendingLevelUp: false,
+};
+
+function createPlayer(name, race) {
+  const r = RACES.find(x=>x.id===race);
+  return {
+    name, race,
+    level: 1, xp: 0, xpToNext: 100,
+    hp: 100 + (r.stats.hp||0), maxHp: 100 + (r.stats.hp||0),
+    mp: 80 + (r.stats.mp||0), maxMp: 80 + (r.stats.mp||0),
+    sp: 80 + (r.stats.sp||0), maxSp: 80 + (r.stats.sp||0),
+    gold: 50 + (r.stats.gold||0),
+    atk: 5, def: 3,
+    skills: {
+      oneHand: 10 + (r.stats.oneHand||0), twoHand: 10, archery: 10 + (r.stats.archery||0),
+      block: 10, heavyArmor: 10 + (r.stats.heavyArmor||0), lightArmor: 10,
+      destruction: 10 + (r.stats.destruction||0), restoration: 10,
+      sneak: 10 + (r.stats.sneak||0), lockpick: 10 + (r.stats.lockpick||0),
+      alchemy: 10, smithing: 10, enchant: 10 + (r.stats.enchant||0), speech: 10 + (r.stats.speech||0),
+    },
+    weapon: {...WEAPONS[0], type:'melee'},
+    armor: {...ARMORS[0], type:'armor'},
+    inventory: [],
+    spells: [SPELLS[0], SPELLS[3]],
+    shouts: [],
+    perks: [],
+    resistances: { fire: r.stats.fire||0, frost: r.stats.frost||0, shock:0, poison: r.stats.poison||0, magic: r.stats.magicRes||0 },
+    carryWeight: 0, maxCarryWeight: 300,
+  };
+}
+
+function getPlayerAtk() {
+  let base = G.player.weapon.atk + G.player.atk;
+  let skillBonus = G.player.weapon.type === 'ranged' ? G.player.skills.archery * 0.3 : G.player.skills.oneHand * 0.3;
+  return Math.floor(base + skillBonus);
+}
+function getPlayerDef() {
+  let base = G.player.armor.def + G.player.def;
+  let skillBonus = G.player.armor.tier >= 4 ? G.player.skills.heavyArmor * 0.2 : G.player.skills.lightArmor * 0.2;
+  return Math.floor(base + skillBonus);
+}
+
+function notify(msg) {
+  G.notifications.push({msg, time:Date.now()});
+  renderNotifications();
+  setTimeout(()=>{ G.notifications.shift(); renderNotifications(); }, 3000);
+}
+
+function addNarrative(text, cls='') {
+  G.narrative.push({text, cls, time:Date.now()});
+  if(G.narrative.length > 50) G.narrative = G.narrative.slice(-40);
+}
+function clearNarrative() { G.narrative = []; }
+
+function advanceTime(hours) {
+  G.dayTime += hours;
+  while(G.dayTime >= 24) { G.dayTime -= 24; G.day++; }
+  if(Math.random() < 0.2) {
+    const weathers = ['clear','cloudy','rain','snow','blizzard','fog'];
+    const loc = LOCATIONS.find(l=>l.id===G.currentLocation);
+    if(loc && (loc.region==='冰原'||loc.region==='冻原'||loc.region==='雪山')) {
+      G.weather = ['clear','snow','blizzard','snow'][Math.floor(Math.random()*4)];
+    } else if(loc && loc.region==='沼泽') {
+      G.weather = ['fog','rain','cloudy','fog'][Math.floor(Math.random()*4)];
+    } else {
+      G.weather = weathers[Math.floor(Math.random()*weathers.length)];
+    }
+  }
+}
+
+function getTimeString() {
+  const h = Math.floor(G.dayTime);
+  const m = Math.floor((G.dayTime-h)*60);
+  return `第${G.day}天 ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+}
+
+function getWeatherIcon() {
+  return {clear:'☀️',cloudy:'☁️',rain:'🌧️',snow:'❄️',blizzard:'🌨️',fog:'🌫️'}[G.weather]||'☀️';
+}
+
+function travelTo(locId) {
+  if(locId === G.currentLocation) return;
+  const from = LOCATIONS.find(l=>l.id===G.currentLocation);
+  const to = LOCATIONS.find(l=>l.id===locId);
+  if(!to) return;
+  const dist = Math.sqrt((from.x-to.x)**2+(from.y-to.y)**2);
+  const travelTime = Math.max(1, dist/15);
+  G.travelTarget = locId;
+  G.travelProgress = 0;
+  G.screen = 'travel';
+  render();
+
+  const steps = 20;
+  let step = 0;
+  const interval = setInterval(()=>{
+    step++;
+    G.travelProgress = step/steps;
+    renderTravelProgress();
+    if(step >= steps) {
+      clearInterval(interval);
+      const encounterChance = G.weather==='blizzard'?0.4:G.weather==='snow'?0.25:0.15;
+      if(Math.random() < encounterChance && to.type!=='special') {
+        finishTravel(locId, travelTime);
+        triggerRandomEncounter();
+      } else {
+        finishTravel(locId, travelTime);
+      }
+    }
+  }, 80);
+}
+
+function finishTravel(locId, hours) {
+  G.currentLocation = locId;
+  if(!G.discoveredLocations.includes(locId)) {
+    G.discoveredLocations.push(locId);
+    notify('发现新地点: ' + LOCATIONS.find(l=>l.id===locId).name);
+  }
+  advanceTime(hours||2);
+  G.screen = 'game';
+  G.activeRandomQuest = null;
+  G.currentScene = null;
+  G.choices = [];
+  G.mobileTab = 'story';
+  const loc = LOCATIONS.find(l=>l.id===locId);
+  clearNarrative();
+  addNarrative(`你来到了${loc.name}。`, 'important');
+  addNarrative(loc.desc);
+  if(loc.type==='city'||loc.type==='town'||loc.type==='village') {
+    generateRandomQuests(locId);
+  }
+  checkQuestTriggers();
+  if(!G.currentScene) render();
+  autoSave();
+}
+
+function triggerRandomEncounter() {
+  const enemies = ['wolf','wolf','bandit','bandit','skeleton','spider'];
+  const loc = LOCATIONS.find(l=>l.id===G.currentLocation);
+  if(loc && (loc.region==='冰原'||loc.region==='冻原')) enemies.push('troll');
+  if(loc && loc.region==='沼泽') enemies.push('vampire');
+  const eId = enemies[Math.floor(Math.random()*enemies.length)];
+  addNarrative('旅途中，你遭遇了敌人！', 'combat');
+  startCombat(eId);
+}
+
+function getCurrentMainQuest() {
+  return MAIN_QUESTS[G.mainQuestProgress] || null;
+}
+
+function checkQuestTriggers() {
+  const mq = getCurrentMainQuest();
+  if(mq && mq.location === G.currentLocation && !G.completedQuests.includes(mq.id)) {
+    if(!mq.requireQuest || G.completedQuests.includes(mq.requireQuest)) {
+      if(!G.currentScene || G.currentScene.quest.id !== mq.id) {
+        G.activeQuests = G.activeQuests.filter(q=>q!==mq.id);
+        G.activeQuests.push(mq.id);
+        startQuestScene(mq);
+      }
+    }
+  }
+}
+
+function startQuestScene(quest) {
+  G.currentScene = { quest, sceneIdx:0 };
+  showScene(quest.scenes[0], quest);
+}
+
+function showScene(scene, quest) {
+  if(!scene) return;
+  addNarrative('', 'divider');
+  if(scene.text) addNarrative(scene.text, scene.important?'important':'');
+
+  G.choices = scene.choices.map(c => ({
+    text: c.text,
+    action: () => {
+      if(c.next === 'complete') {
+        completeQuestScene(quest);
+      } else if(c.next === 'combat') {
+        G.currentScene.combatNext = (G.currentScene.sceneIdx||0) + 1;
+        const enemyId = c.combat || 'bandit';
+        if(enemyId === 'alduin_1') {
+          startCombat('alduin', {name:'奥杜因（受创）', hp:400, atk:50, def:25});
+        } else {
+          startCombat(enemyId);
+        }
+      } else if(typeof c.next === 'number') {
+        G.currentScene.sceneIdx = c.next;
+        showScene(quest.scenes[c.next], quest);
+        render();
+      }
+    },
+    locked: c.require && !meetsRequirement(c.require),
+    requirement: c.require
+  }));
+  render();
+}
+
+function completeQuestScene(quest) {
+  if(!G.completedQuests.includes(quest.id)) {
+    G.completedQuests.push(quest.id);
+    G.activeQuests = G.activeQuests.filter(q=>q!==quest.id);
+    if(quest.rewards) {
+      const r = quest.rewards;
+      if(r.xp) gainXP(r.xp);
+      if(r.gold) { G.player.gold += r.gold; notify(`获得 ${r.gold} 金币`); }
+      if(r.items) {
+        r.items.forEach(iid => {
+          const item = findItemById(iid);
+          if(item) { addToInventory(item); notify(`获得: ${item.name}`); }
+        });
+      }
+      if(r.shout) {
+        const s = SHOUTS.find(x=>x.id===r.shout);
+        if(s && !G.player.shouts.find(x=>x.id===s.id)) {
+          G.player.shouts.push(s);
+          addNarrative(`你学会了新的龙吼: ${s.name} (${s.words.join(' ')})`, 'shout');
+          notify(`习得龙吼: ${s.name}`);
+        }
+      }
+    }
+    addNarrative(`—— 任务完成: ${quest.name} ——`, 'system');
+    notify(`任务完成: ${quest.name}`);
+    if(quest.id.startsWith('mq')) {
+      G.mainQuestProgress = MAIN_QUESTS.findIndex(q=>q.id===quest.id) + 1;
+      const nextMq = getCurrentMainQuest();
+      if(nextMq) {
+        const targetLoc = LOCATIONS.find(l=>l.id===nextMq.location);
+        if(targetLoc) {
+          addNarrative(`\n下一步: 前往${targetLoc.name}，开始「${nextMq.name}」`, 'important');
+          if(!G.discoveredLocations.includes(nextMq.location)) {
+            G.discoveredLocations.push(nextMq.location);
+          }
+        }
+      } else {
+        addNarrative('\n恭喜你完成了全部主线任务！天霜省的冒险仍在继续...', 'important');
+      }
+    }
+    G.currentScene = null;
+    G.choices = [];
+  }
+  render();
+}
+
+function meetsRequirement(req) {
+  if(req && req.quest) return G.completedQuests.includes(req.quest);
+  if(req && req.item) return G.player.inventory.some(i=>i.id===req.item);
+  return true;
+}
+
+function startSideQuest(chainId) {
+  const chain = SIDE_QUEST_CHAINS[chainId];
+  if(!chain) return;
+  const progress = G.sideQuestProgress[chainId];
+  if(progress >= chain.quests.length) { notify('这条支线已全部完成'); return; }
+  const quest = chain.quests[progress];
+  if(G.activeQuests.includes(quest.id)) return;
+  G.activeQuests.push(quest.id);
+  addNarrative(`—— 开始支线任务: ${quest.name} ——`, 'system');
+  startQuestScene(quest);
+}
+
+function completeSideQuest(chainId) {
+  const chain = SIDE_QUEST_CHAINS[chainId];
+  const progress = G.sideQuestProgress[chainId];
+  const quest = chain.quests[progress];
+  completeQuestScene(quest);
+  G.sideQuestProgress[chainId]++;
+}
+
+function generateRandomQuests(locId) {
+  G.randomQuests = [];
+  const loc = LOCATIONS.find(l=>l.id===locId);
+  const count = 3 + Math.floor(Math.random()*2);
+  const rep = G.townReputation[locId] || 0;
+
+  for(let i=0; i<count; i++) {
+    const tmpl = RANDOM_QUEST_TEMPLATES[Math.floor(Math.random()*RANDOM_QUEST_TEMPLATES.length)];
+    let name = tmpl.name, desc = tmpl.desc;
+    let enemy = null, reward_xp, reward_gold;
+
+    if(tmpl.type==='hunt') {
+      const eId = tmpl.enemies[Math.floor(Math.random()*tmpl.enemies.length)];
+      enemy = ENEMIES[eId];
+      name = name.replace('{enemy}', enemy.name);
+      desc = desc.replace('{enemy}', enemy.name).replace('{location}', loc.name);
+      reward_xp = Math.floor(enemy.xp * tmpl.xpMult * (1 + rep*0.1));
+      reward_gold = Math.floor((enemy.gold+20) * tmpl.goldMult * (1 + rep*0.1));
+    } else if(tmpl.type==='gather') {
+      const item = tmpl.items[Math.floor(Math.random()*tmpl.items.length)];
+      const npc = NPC_NAMES[Math.floor(Math.random()*NPC_NAMES.length)];
+      const cnt = 3+Math.floor(Math.random()*5);
+      name = name.replace('{item}', item);
+      desc = desc.replace('{item}',item).replace('{npc}',npc).replace('{count}',cnt);
+      reward_xp = Math.floor(30 * tmpl.xpMult * (1+rep*0.1));
+      reward_gold = Math.floor(40 * tmpl.goldMult * (1+rep*0.1));
+    } else if(tmpl.type==='escort') {
+      const dests = LOCATIONS.filter(l=>l.type==='city'&&l.id!==locId);
+      const dest = dests[Math.floor(Math.random()*dests.length)];
+      desc = desc.replace('{destination}', dest?dest.name:'临近城镇');
+      reward_xp = Math.floor(50 * tmpl.xpMult * (1+rep*0.1));
+      reward_gold = Math.floor(60 * tmpl.goldMult * (1+rep*0.1));
+    } else if(tmpl.type==='investigate') {
+      const ev = tmpl.events[Math.floor(Math.random()*tmpl.events.length)];
+      name = name.replace('{event}', ev);
+      desc = desc.replace('{event}',ev).replace('{location}',loc.name);
+      reward_xp = Math.floor(40 * tmpl.xpMult * (1+rep*0.1));
+      reward_gold = Math.floor(35 * tmpl.goldMult * (1+rep*0.1));
+    } else if(tmpl.type==='clear') {
+      const dng = tmpl.dungeons[Math.floor(Math.random()*tmpl.dungeons.length)];
+      name = name.replace('{dungeon}', dng);
+      desc = desc.replace('{dungeon}', dng);
+      reward_xp = Math.floor(60 * tmpl.xpMult * (1+rep*0.1));
+      reward_gold = Math.floor(50 * tmpl.goldMult * (1+rep*0.1));
+    }
+
+    G.randomQuests.push({
+      id: `rq_${locId}_${i}_${Date.now()}`,
+      type: tmpl.type, name, desc, icon: tmpl.icon,
+      enemy: enemy ? Object.keys(ENEMIES).find(k=>ENEMIES[k]===enemy) : 'bandit',
+      xp: reward_xp||30, gold: reward_gold||20,
+      location: locId,
+    });
+  }
+}
+
+function acceptRandomQuest(idx) {
+  const q = G.randomQuests[idx];
+  if(!q) return;
+  G.activeRandomQuest = q;
+  G.mobileTab = 'story';
+  clearNarrative();
+  addNarrative(`—— 接受任务: ${q.name} ——`, 'system');
+  addNarrative(q.desc);
+
+  if(q.type==='hunt' || q.type==='clear') {
+    addNarrative('你出发寻找目标...');
+    advanceTime(0.5);
+    G.choices = [{
+      text: '开始战斗',
+      action: () => {
+        startCombat(q.enemy, null, ()=>{ completeRandomQuest(q); });
+      }
+    }];
+  } else if(q.type==='gather') {
+    addNarrative('你开始在周围搜寻所需物资...');
+    advanceTime(1);
+    const success = Math.random() < 0.7 + G.player.skills.alchemy*0.005;
+    if(success) {
+      addNarrative('经过仔细搜索，你成功收集了所需的物资。');
+      completeRandomQuest(q);
+    } else {
+      addNarrative('搜索过程中，你遭到了野兽的攻击！');
+      G.choices = [{text:'战斗！', action:()=>startCombat('wolf',null,()=>completeRandomQuest(q))}];
+    }
+  } else if(q.type==='escort') {
+    addNarrative('你与商队一同出发。路途中可能会遭遇危险...');
+    advanceTime(2);
+    if(Math.random()<0.6) {
+      addNarrative('强盗从路旁杀出！你必须保护商队！', 'combat');
+      G.choices = [{text:'保护商队！', action:()=>startCombat('bandit',null,()=>completeRandomQuest(q))}];
+    } else {
+      addNarrative('商队安全抵达目的地。商人感激地向你支付了报酬。');
+      completeRandomQuest(q);
+    }
+  } else if(q.type==='investigate') {
+    addNarrative('你开始调查周围的异常情况...');
+    advanceTime(1);
+    const r = Math.random();
+    if(r<0.4) {
+      addNarrative('调查中你发现了敌人的踪迹！', 'combat');
+      G.choices = [{text:'迎战！', action:()=>startCombat('draugr',null,()=>completeRandomQuest(q))}];
+    } else {
+      addNarrative('经过仔细调查，你找到了线索并解决了问题。居民们松了一口气。');
+      completeRandomQuest(q);
+    }
+  }
+  render();
+}
+
+function completeRandomQuest(q) {
+  gainXP(q.xp);
+  G.player.gold += q.gold;
+  G.townReputation[q.location] = (G.townReputation[q.location]||0) + 1;
+  addNarrative(`任务完成！获得 ${q.xp} 经验, ${q.gold} 金币`, 'system');
+  notify(`任务完成: ${q.name}`);
+  if(Math.random()<0.3) {
+    const pot = POTIONS[Math.floor(Math.random()*3)];
+    addToInventory({...pot});
+    addNarrative(`额外获得: ${pot.name}`, 'system');
+  }
+  G.activeRandomQuest = null;
+  G.choices = [];
+  render();
+}
+
+function startCombat(enemyId, overrides, onWinCallback) {
+  const template = ENEMIES[enemyId] || ENEMIES.bandit;
+  const levelMult = 1 + (G.player.level-1)*0.15;
+  const enemy = {
+    ...template,
+    id: enemyId,
+    hp: Math.floor((overrides?.hp || template.hp) * levelMult),
+    maxHp: Math.floor((overrides?.hp || template.hp) * levelMult),
+    atk: Math.floor((overrides?.atk || template.atk) * levelMult),
+    def: overrides?.def || template.def,
+    name: overrides?.name || template.name,
+  };
+  G.combat = {
+    enemy,
+    log: [`${enemy.name} 出现了！`],
+    turn: 'player',
+    onWin: onWinCallback || null,
+    shieldActive: false,
+    slowActive: false,
+    turnCount: 0,
+  };
+  G.screen = 'combat';
+  render();
+}
+
+function combatAction(action, param) {
+  if(!G.combat || G.combat.turn !== 'player') return;
+  const c = G.combat;
+  const e = c.enemy;
+  const p = G.player;
+  c.turnCount++;
+
+  let playerDmg = 0;
+  let logMsg = '';
+
+  if(action === 'attack') {
+    playerDmg = Math.max(1, getPlayerAtk() - e.def + Math.floor(Math.random()*6));
+    const crit = Math.random() < 0.1 + p.skills.oneHand*0.002;
+    if(crit) { playerDmg = Math.floor(playerDmg*1.8); logMsg = `暴击！你对${e.name}造成了 ${playerDmg} 点伤害！`; }
+    else { logMsg = `你攻击${e.name}，造成 ${playerDmg} 点伤害。`; }
+    e.hp -= playerDmg;
+    p.sp = Math.max(0, p.sp - 5);
+  } else if(action === 'power_attack') {
+    if(p.sp < 20) { c.log.push('耐力不足！'); render(); return; }
+    playerDmg = Math.max(1, Math.floor(getPlayerAtk()*1.6) - e.def + Math.floor(Math.random()*8));
+    logMsg = `你使出强力攻击！造成 ${playerDmg} 点伤害！`;
+    e.hp -= playerDmg;
+    p.sp -= 20;
+  } else if(action === 'block') {
+    c.shieldActive = true;
+    logMsg = '你举起防御姿态。';
+    p.sp -= 5;
+  } else if(action === 'spell') {
+    const spell = param;
+    if(!spell) return;
+    if(p.mp < spell.cost) { c.log.push('魔力不足！'); render(); return; }
+    p.mp -= spell.cost;
+    if(spell.type === 'destruction') {
+      let dmg = spell.dmg + p.skills.destruction*0.5;
+      if(spell.element === 'fire') dmg *= (1 - (e.fireRes||0)/100);
+      playerDmg = Math.floor(dmg);
+      logMsg = `你施放${spell.name}！造成 ${playerDmg} 点伤害！`;
+      e.hp -= playerDmg;
+    } else if(spell.heal) {
+      const heal = spell.heal + p.skills.restoration*0.5;
+      p.hp = Math.min(p.maxHp, p.hp + Math.floor(heal));
+      logMsg = `你施放${spell.name}，恢复了 ${Math.floor(heal)} 点生命。`;
+    } else if(spell.shield) {
+      c.shieldActive = true;
+      logMsg = `你展开${spell.name}，抵挡下一次攻击。`;
+    }
+  } else if(action === 'shout') {
+    const shout = param;
+    if(!shout) return;
+    if(G.shoutCooldowns[shout.id] && G.shoutCooldowns[shout.id] > 0) {
+      c.log.push(`${shout.name}正在冷却中！`); render(); return;
+    }
+    G.shoutCooldowns[shout.id] = shout.cooldown;
+    if(shout.dmg) {
+      let dmg = shout.dmg + p.level*3;
+      if(shout.effect==='dragonrend' && (e.id==='dragon'||e.id==='alduin'||e.id==='mirmulnir'||e.id==='alduin_1')) dmg *= 2;
+      e.hp -= Math.floor(dmg);
+      logMsg = `"${shout.words.join(' ').toUpperCase()}！" ${shout.name}造成 ${Math.floor(dmg)} 点伤害！`;
+    }
+    if(shout.effect==='slow') { c.slowActive = true; logMsg = `"${shout.words.join(' ').toUpperCase()}！" 时间减缓了...`; }
+    if(shout.effect==='push') logMsg = `"${shout.words.join(' ').toUpperCase()}！" ${e.name}被震退！`;
+  } else if(action === 'item') {
+    const item = param;
+    if(!item) return;
+    removeFromInventory(item);
+    if(item.effect==='hp') { p.hp = Math.min(p.maxHp, p.hp + item.value); logMsg = `使用${item.name}，恢复 ${item.value} 点生命。`; }
+    else if(item.effect==='mp') { p.mp = Math.min(p.maxMp, p.mp + item.value); logMsg = `使用${item.name}，恢复 ${item.value} 点魔力。`; }
+    else if(item.effect==='sp') { p.sp = Math.min(p.maxSp, p.sp + item.value); logMsg = `使用${item.name}，恢复 ${item.value} 点耐力。`; }
+  } else if(action === 'flee') {
+    const fleeChance = 0.3 + p.skills.sneak*0.005;
+    if(Math.random() < fleeChance) {
+      c.log.push('你成功逃脱了！');
+      G.screen = 'game';
+      G.combat = null;
+      render();
+      return;
+    } else {
+      logMsg = '逃跑失败！';
+    }
+  }
+
+  if(logMsg) c.log.push(logMsg);
+
+  if(e.hp <= 0) {
+    e.hp = 0;
+    c.log.push(`${e.name} 被击败了！`);
+    endCombat(true);
+    return;
+  }
+
+  c.turn = 'enemy';
+  render();
+  setTimeout(()=>{ enemyTurn(); }, 600);
+}
+
+function enemyTurn() {
+  const c = G.combat;
+  if(!c) return;
+  const e = c.enemy;
+  const p = G.player;
+
+  let dmg = Math.max(1, e.atk - getPlayerDef() + Math.floor(Math.random()*4) - 2);
+  if(c.slowActive) { dmg = Math.floor(dmg*0.5); c.slowActive = false; }
+  if(c.shieldActive) {
+    dmg = Math.floor(dmg * 0.3);
+    c.shieldActive = false;
+    c.log.push(`${e.name}的攻击被你格挡！仅受到 ${dmg} 点伤害。`);
+  } else {
+    const dodgeChance = p.skills.lightArmor*0.003 + p.skills.sneak*0.002;
+    if(Math.random() < dodgeChance) {
+      c.log.push(`你灵巧地闪避了${e.name}的攻击！`);
+      dmg = 0;
+    } else {
+      c.log.push(`${e.name}攻击你，造成 ${dmg} 点伤害。`);
+    }
+  }
+
+  p.hp -= dmg;
+
+  Object.keys(G.shoutCooldowns).forEach(k=>{
+    if(G.shoutCooldowns[k]>0) G.shoutCooldowns[k]--;
+  });
+
+  p.sp = Math.min(p.maxSp, p.sp + 3);
+  p.mp = Math.min(p.maxMp, p.mp + 2);
+
+  if(p.hp <= 0) {
+    p.hp = 0;
+    c.log.push('你倒下了...');
+    endCombat(false);
+    return;
+  }
+
+  c.turn = 'player';
+  render();
+}
+
+function endCombat(won) {
+  const c = G.combat;
+  if(!c) return;
+
+  setTimeout(()=>{
+    if(won) {
+      const e = c.enemy;
+      gainXP(ENEMIES[e.id]?.xp || e.xp || 30);
+      const goldDrop = ENEMIES[e.id]?.gold || 0;
+      if(goldDrop) G.player.gold += goldDrop;
+      const lootTable = ENEMIES[e.id]?.loot || [];
+      lootTable.forEach(lname=>{
+        if(Math.random()<0.5) {
+          const item = {id:'loot_'+lname, name:lname, icon:'📦', type:'misc', weight:1};
+          addToInventory(item);
+        }
+      });
+      improveSkill('oneHand', 2);
+      if(G.player.armor.tier >= 4) improveSkill('heavyArmor',1); else improveSkill('lightArmor',1);
+
+      addNarrative(`你击败了${e.name}！`, 'combat');
+      if(goldDrop) addNarrative(`获得 ${goldDrop} 金币`, 'system');
+
+      G.screen = 'game';
+      G.combat = null;
+
+      if(G.currentScene && G.currentScene.combatNext !== undefined) {
+        const quest = G.currentScene.quest;
+        const nextIdx = G.currentScene.combatNext;
+        G.currentScene.combatNext = undefined;
+        if(quest.scenes[nextIdx]) {
+          G.currentScene.sceneIdx = nextIdx;
+          showScene(quest.scenes[nextIdx], quest);
+        }
+      }
+      if(c.onWin) c.onWin();
+    } else {
+      addNarrative('你在战斗中倒下了...', 'combat');
+      addNarrative('从上次存档点恢复...', 'system');
+      G.screen = 'game';
+      G.combat = null;
+      G.player.hp = Math.floor(G.player.maxHp * 0.5);
+      G.player.mp = Math.floor(G.player.maxMp * 0.5);
+      G.player.sp = G.player.maxSp;
+      const save = localStorage.getItem('skyrim_autosave');
+      if(save) {
+        try { loadGameState(JSON.parse(save)); notify('从自动存档恢复'); }
+        catch(err) { console.error(err); }
+      }
+    }
+    render();
+  }, 1000);
+}
+
+function gainXP(amount) {
+  G.player.xp += amount;
+  while(G.player.xp >= G.player.xpToNext) {
+    G.player.xp -= G.player.xpToNext;
+    G.player.level++;
+    G.player.xpToNext = Math.floor(G.player.xpToNext * 1.4);
+    G.pendingLevelUp = true;
+    notify(`升级！你现在是 ${G.player.level} 级`);
+  }
+}
+
+function chooseLevelUpAttr(attr) {
+  if(attr === 'hp') { G.player.maxHp += 20; G.player.hp += 20; }
+  else if(attr === 'mp') { G.player.maxMp += 20; G.player.mp += 20; }
+  else if(attr === 'sp') { G.player.maxSp += 15; G.player.sp += 15; }
+  G.player.atk += 1;
+  G.player.def += 1;
+  G.pendingLevelUp = false;
+  render();
+}
+
+function improveSkill(skillId, amount) {
+  if(G.player.skills[skillId] !== undefined) {
+    G.player.skills[skillId] = Math.min(100, G.player.skills[skillId] + amount);
+  }
+}
+
+function findItemById(id) {
+  let item = WEAPONS.find(w=>w.id===id);
+  if(item) return {...item, type:'weapon'};
+  item = ARMORS.find(a=>a.id===id);
+  if(item) return {...item, type:'armor'};
+  item = POTIONS.find(p=>p.id===id);
+  if(item) return {...item, type:'potion'};
+  return null;
+}
+
+function addToInventory(item) {
+  if(item.type==='potion'||item.effect) {
+    const existing = G.player.inventory.find(i=>i.id===item.id);
+    if(existing) { existing.count = (existing.count||1)+1; return; }
+  }
+  item.count = item.count || 1;
+  G.player.inventory.push(item);
+}
+
+function removeFromInventory(item) {
+  const idx = G.player.inventory.findIndex(i=>i.id===item.id);
+  if(idx>=0) {
+    if(G.player.inventory[idx].count > 1) G.player.inventory[idx].count--;
+    else G.player.inventory.splice(idx,1);
+  }
+}
+
+function equipWeapon(item) {
+  G.player.weapon = item;
+  notify(`装备: ${item.name}`);
+  render();
+}
+function equipArmor(item) {
+  G.player.armor = item;
+  notify(`装备: ${item.name}`);
+  render();
+}
+
+function openShop() {
+  G.shopOpen = true;
+  const rep = G.townReputation[G.currentLocation] || 0;
+  const discount = Math.min(0.3, rep * 0.05);
+  const tier = Math.min(7, Math.floor(G.player.level / 3) + 1);
+  G.shopItems = [];
+  WEAPONS.filter(w=>w.tier<=tier && w.price && !w.questItem).forEach(w=>{
+    G.shopItems.push({...w, type:'weapon', shopPrice: Math.floor(w.price*(1-discount))});
+  });
+  ARMORS.filter(a=>a.tier<=tier && a.price).forEach(a=>{
+    G.shopItems.push({...a, type:'armor', shopPrice: Math.floor(a.price*(1-discount))});
+  });
+  POTIONS.forEach(p=>{
+    G.shopItems.push({...p, type:'potion', shopPrice: Math.floor(p.price*(1-discount))});
+  });
+  render();
+}
+
+function buyItem(shopItem) {
+  if(G.player.gold < shopItem.shopPrice) { notify('金币不足！'); return; }
+  G.player.gold -= shopItem.shopPrice;
+  addToInventory({...shopItem});
+  notify(`购买了 ${shopItem.name}`);
+  render();
+}
+
+function sellItem(item) {
+  const price = Math.floor((item.price || 10) * 0.4);
+  G.player.gold += price;
+  removeFromInventory(item);
+  notify(`卖出 ${item.name}，获得 ${price} 金币`);
+  render();
+}
+
+function saveGameState() {
+  return {
+    player: G.player,
+    currentLocation: G.currentLocation,
+    mainQuestProgress: G.mainQuestProgress,
+    completedQuests: G.completedQuests,
+    sideQuestProgress: G.sideQuestProgress,
+    townReputation: G.townReputation,
+    dayTime: G.dayTime, day: G.day, weather: G.weather,
+    discoveredLocations: G.discoveredLocations,
+    narrative: G.narrative.slice(-10),
+  };
+}
+
+function loadGameState(data) {
+  G.player = data.player;
+  if(G.player.weapon && G.player.weapon.id) {
+    const w = WEAPONS.find(x=>x.id===G.player.weapon.id);
+    if(w) G.player.weapon = {...w, type:'weapon'};
+  }
+  if(G.player.armor && G.player.armor.id) {
+    const a = ARMORS.find(x=>x.id===G.player.armor.id);
+    if(a) G.player.armor = {...a, type:'armor'};
+  }
+  G.currentLocation = data.currentLocation;
+  G.mainQuestProgress = data.mainQuestProgress;
+  G.completedQuests = data.completedQuests || [];
+  G.sideQuestProgress = data.sideQuestProgress || {companions:0,thieves:0,college:0,darkbrotherhood:0,civilwar:0};
+  G.townReputation = data.townReputation || {};
+  G.dayTime = data.dayTime || 8;
+  G.day = data.day || 1;
+  G.weather = data.weather || 'clear';
+  G.discoveredLocations = data.discoveredLocations || ['helgen'];
+  G.narrative = data.narrative || [];
+  G.activeQuests = [];
+  G.choices = [];
+  G.currentScene = null;
+  G.combat = null;
+  G.screen = 'game';
+  G.mobileTab = 'story';
+  G.shopOpen = false;
+  G.pendingLevelUp = false;
+}
+
+function autoSave() {
+  try { localStorage.setItem('skyrim_autosave', JSON.stringify(saveGameState())); }
+  catch(e) { console.error('autosave failed',e); }
+}
+
+function saveToSlot(slot) {
+  try {
+    localStorage.setItem(`skyrim_save_${slot}`, JSON.stringify(saveGameState()));
+    notify(`存档 ${slot} 保存成功`);
+  } catch(e) { notify('保存失败'); }
+}
+
+function loadFromSlot(slot) {
+  try {
+    const data = JSON.parse(localStorage.getItem(`skyrim_save_${slot}`));
+    if(data) { loadGameState(data); notify(`存档 ${slot} 加载成功`); render(); }
+    else notify('存档为空');
+  } catch(e) { notify('加载失败'); }
+}
+
+function hasSave(slot) { return !!localStorage.getItem(`skyrim_save_${slot}`); }
+function hasAutoSave() { return !!localStorage.getItem('skyrim_autosave'); }
+
+// ============================================================
+// RENDER SYSTEM
+// ============================================================
+
+function isMobile() { return window.innerWidth <= 768; }
+
+function render() {
+  const app = document.getElementById('app');
+  if(G.screen === 'title') { app.innerHTML = renderTitle(); }
+  else if(G.screen === 'charCreate') { app.innerHTML = renderCharCreate(); }
+  else if(G.screen === 'game') {
+    if(isMobile()) app.innerHTML = renderGameMobile();
+    else app.innerHTML = renderGame();
+  }
+  else if(G.screen === 'combat') { app.innerHTML = renderCombat(); }
+  else if(G.screen === 'travel') { app.innerHTML = renderTravel(); }
+
+  if(G.pendingLevelUp && G.screen === 'game') {
+    app.insertAdjacentHTML('beforeend', renderLevelUp());
+  }
+  if(G.shopOpen && G.screen === 'game') {
+    app.insertAdjacentHTML('beforeend', renderShop());
+  }
+  bindEvents();
+}
+
+function renderNotifications() {
+  let el = document.getElementById('notif-container');
+  if(!el) { el = document.createElement('div'); el.id='notif-container'; document.body.appendChild(el); }
+  el.innerHTML = G.notifications.map(n=>`<div class="notif">${n.msg}</div>`).join('');
+}
+
+function renderTitle() {
+  return `<div class="title-screen">
+    <div class="title-dragon">🐉</div>
+    <div class="title-text">天 霜 纪</div>
+    <div class="title-sub">DRAGONBORN LEGEND</div>
+    <button class="title-btn" onclick="startNewGame()">开 始 新 游 戏</button>
+    <button class="title-btn" onclick="continueGame()">继 续 游 戏</button>
+    <button class="title-btn" onclick="showLoadMenu()">读 取 存 档</button>
+    <div class="title-version">v1.0 — 网页版天霜纪<br><span style="color:#8a7d5a">制作: 游戏人王鲸 | 联系: QQ 1047008888</span></div>
+  </div>`;
+}
+
+function renderCharCreate() {
+  return `<div class="char-create">
+    <div class="cc-title">创 建 角 色</div>
+    <div class="cc-section">
+      <div class="cc-label">角色名称</div>
+      <input class="cc-input" id="char-name" type="text" placeholder="输入你的名字..." value="龙裔" maxlength="12">
+    </div>
+    <div class="cc-section">
+      <div class="cc-label">选择种族</div>
+      <div class="race-grid">
+        ${RACES.map((r,i)=>`
+          <div class="race-card ${i===0?'selected':''}" data-race="${r.id}" onclick="selectRace('${r.id}')">
+            <div class="race-icon">${r.icon}</div>
+            <div class="race-name">${r.name}</div>
+            <div class="race-bonus">${r.bonus}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="cc-section" id="race-desc" style="text-align:center;color:var(--text-dim);font-size:13px;">${RACES[0].desc}</div>
+    <button class="cc-confirm" onclick="confirmCharacter()">踏 入 天 霜 省</button>
+  </div>`;
+}
+
+// ---- MOBILE GAME RENDER ----
+// ================================================================
+// 核心修复：
+// 1. 最外层容器用 height:100dvh + flex column，不依赖 grid
+// 2. top-bar 用 flex-shrink:0，高度自适应，不写死像素
+// 3. 内容区用 flex:1;min-height:0 占满剩余空间
+// 4. story tab 中：
+//    - 外层容器 flex:1;min-height:0;display:flex;flex-direction:column
+//    - narrative div: flex:1;min-height:0;overflow-y:auto
+//    - choices div: flex-shrink:0（关键！绝不压缩）
+// ================================================================
+function renderGameMobile() {
+  const loc = LOCATIONS.find(l=>l.id===G.currentLocation);
+  const p = G.player;
+  const bgStyle = getLocationBg(loc);
+
+  let tabContent = '';
+
+  if(G.mobileTab === 'story') {
+    // ---- 关键修复区域 ----
+    // 背景层用 position:absolute 不占 flex 空间
+    // narrative: flex:1 + min-height:0 + overflow-y:auto → 可收缩可滚动
+    // choices:   flex-shrink:0 → 永远不被压缩，底部留出导航栏高度
+    tabContent = `
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+        <div style="position:absolute;inset:0;opacity:.3;pointer-events:none;z-index:0;${bgStyle}"></div>
+        <div id="narrative" style="flex:1;min-height:0;overflow-y:auto;padding:12px 14px;position:relative;z-index:1;">
+          ${G.narrative.map(n=>{
+            if(n.cls==='divider') return '<div class="narr-divider"></div>';
+            return `<div class="narr-text ${n.cls}">${n.text.replace(/\n/g,'<br>')}</div>`;
+          }).join('')}
+          ${renderLocationActions(loc)}
+        </div>
+        <div id="choices" style="flex-shrink:0;padding:6px 10px calc(8px + var(--nav-height) + var(--safe-bottom));border-top:1px solid var(--border);position:relative;z-index:1;background:var(--bg-dark);">
+          ${G.choices.map((c,i)=>`
+            <button class="choice-btn ${c.locked?'locked':''}" onclick="makeChoice(${i})">
+              ${c.text}${c.locked?'<span class="choice-req">[条件未满足]</span>':''}
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+
+  } else if(G.mobileTab === 'map') {
+    tabContent = `
+      <div style="flex:1;min-height:0;overflow-y:auto;background:var(--bg-panel);display:flex;flex-direction:column;">
+        <div class="panel-tabs" style="flex-shrink:0;">
+          <div class="panel-tab active">🗺️ 地图</div>
+        </div>
+        <div style="flex-shrink:0;">${renderMap()}</div>
+        <div style="padding:10px;flex:1;overflow-y:auto;">
+          <div style="font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-bottom:6px;">可前往的地点</div>
+          ${renderMobileTravelList()}
+        </div>
+      </div>`;
+
+  } else if(G.mobileTab === 'quests') {
+    tabContent = `
+      <div style="flex:1;min-height:0;overflow-y:auto;background:var(--bg-panel);">
+        ${renderQuestLog()}
+      </div>`;
+
+  } else if(G.mobileTab === 'inv') {
+    tabContent = `
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg-panel);">
+        <div class="panel-tabs" style="flex-shrink:0;">
+          <div class="panel-tab active" onclick="showMobileSubTab(event,'inv')">物品</div>
+          <div class="panel-tab" onclick="showMobileSubTab(event,'equip')">装备</div>
+          <div class="panel-tab" onclick="showMobileSubTab(event,'magic')">魔法</div>
+        </div>
+        <div id="mobile-sub-content" style="flex:1;min-height:0;overflow-y:auto;">
+          ${renderInventory()}
+        </div>
+        <div style="padding:8px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);flex-shrink:0;padding-bottom:calc(8px + var(--nav-height) + var(--safe-bottom));">
+          ${loc&&loc.shops?`<button class="action-btn" style="flex:1;min-height:40px;" onclick="openShop()">🏪 商店</button>`:''}
+          <button class="action-btn" style="flex:1;min-height:40px;" onclick="rest()">🛏️ 休息</button>
+          ${loc&&loc.id==='winterhold'?`<button class="action-btn" style="flex:1;min-height:40px;" onclick="learnSpells()">📚 法术</button>`:''}
+        </div>
+      </div>`;
+
+  } else if(G.mobileTab === 'char') {
+    tabContent = `
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg-panel);">
+        <div class="panel-tabs" style="flex-shrink:0;">
+          <div class="panel-tab active">👤 角色</div>
+        </div>
+        <div style="flex:1;min-height:0;overflow-y:auto;">
+          ${renderStats()}
+        </div>
+        <div style="padding:8px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);flex-shrink:0;padding-bottom:calc(8px + var(--nav-height) + var(--safe-bottom));">
+          <button class="action-btn" style="flex:1;min-height:40px;" onclick="openSaveMenu()">💾 存档</button>
+          <button class="action-btn" style="flex:1;min-height:40px;" onclick="openCharSheet()">📋 详情</button>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div style="display:flex;flex-direction:column;width:100%;height:100dvh;overflow:hidden;">
+
+      <!-- Top Bar: flex-shrink:0，高度完全自适应内容，绝不写死像素 -->
+      <div class="top-bar" style="flex-shrink:0;">
+        <div class="top-info">
+          <span class="top-level">Lv.${p.level}</span>
+          <span class="top-gold">💰${p.gold}</span>
+          <span class="top-time" style="margin-left:auto;">${getWeatherIcon()} ${getTimeString()}</span>
+        </div>
+        <div class="stat-bars">
+          <div class="stat-bar">
+            <span class="bar-label">❤️</span>
+            <div class="bar-track"><div class="bar-fill health" style="width:${p.hp/p.maxHp*100}%"></div></div>
+            <span class="bar-value">${p.hp}/${p.maxHp}</span>
+          </div>
+          <div class="stat-bar">
+            <span class="bar-label">💜</span>
+            <div class="bar-track"><div class="bar-fill magicka" style="width:${p.mp/p.maxMp*100}%"></div></div>
+            <span class="bar-value">${p.mp}/${p.maxMp}</span>
+          </div>
+          <div class="stat-bar">
+            <span class="bar-label">💚</span>
+            <div class="bar-track"><div class="bar-fill stamina" style="width:${p.sp/p.maxSp*100}%"></div></div>
+            <span class="bar-value">${p.sp}/${p.maxSp}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 内容区：flex:1 + min-height:0，占满 top-bar 以下的所有空间 -->
+      <!-- 注意：底部导航栏是 fixed 定位，所以内容区不需要再减去导航栏高度 -->
+      <!-- choices 区域自己用 padding-bottom 留出导航栏空间 -->
+      <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
+        ${tabContent}
+      </div>
+
+      <!-- 底部导航：fixed 定位，不占文档流 -->
+      <nav class="mobile-nav">
+        <button class="mobile-nav-btn ${G.mobileTab==='story'?'active':''}" onclick="setMobileTab('story')">
+          <span class="nav-icon">📖</span>故事
+        </button>
+        <button class="mobile-nav-btn ${G.mobileTab==='map'?'active':''}" onclick="setMobileTab('map')">
+          <span class="nav-icon">🗺️</span>地图
+        </button>
+        <button class="mobile-nav-btn ${G.mobileTab==='quests'?'active':''}" onclick="setMobileTab('quests')">
+          <span class="nav-icon">📜</span>任务
+        </button>
+        <button class="mobile-nav-btn ${G.mobileTab==='inv'?'active':''}" onclick="setMobileTab('inv')">
+          <span class="nav-icon">🎒</span>物品
+        </button>
+        <button class="mobile-nav-btn ${G.mobileTab==='char'?'active':''}" onclick="setMobileTab('char')">
+          <span class="nav-icon">👤</span>角色
+        </button>
+      </nav>
+    </div>`;
+}
+
+function renderMobileTravelList() {
+  const currentLoc = LOCATIONS.find(l=>l.id===G.currentLocation);
+  const reachable = LOCATIONS.filter(l => {
+    if(l.id === G.currentLocation) return false;
+    if(l.id === 'sovngarde' && !G.completedQuests.includes('mq9')) return false;
+    if(!G.discoveredLocations.includes(l.id) && l.type !== 'city' && l.type !== 'town') return false;
+    return true;
+  }).sort((a,b) => {
+    const dA = Math.sqrt((currentLoc.x-a.x)**2+(currentLoc.y-a.y)**2);
+    const dB = Math.sqrt((currentLoc.x-b.x)**2+(currentLoc.y-b.y)**2);
+    return dA - dB;
+  }).slice(0, 12);
+
+  return reachable.map(l => {
+    const dist = Math.sqrt((currentLoc.x-l.x)**2+(currentLoc.y-l.y)**2);
+    const distLabel = dist < 15 ? '近' : dist < 30 ? '中' : '远';
+    return `<button class="travel-btn" onclick="travelTo('${l.id}');setMobileTab('story')">
+      ${l.icon} ${l.name} <span class="travel-dist">${distLabel}</span>
+    </button>`;
+  }).join('');
+}
+
+// ---- DESKTOP GAME RENDER ----
+function renderGame() {
+  const loc = LOCATIONS.find(l=>l.id===G.currentLocation);
+  const p = G.player;
+  const bgStyle = getLocationBg(loc);
+
+  return `<div class="game-container">
+    <div class="top-bar">
+      <div class="compass">
+        ${['N','NE','E','SE','S','SW','W','NW'].map(d=>`<span class="compass-dir">${d}</span>`).join('')}
+      </div>
+      <div class="stat-bars">
+        <div class="stat-bar"><span class="bar-label">❤️</span>
+          <div class="bar-track"><div class="bar-fill health" style="width:${p.hp/p.maxHp*100}%"></div></div>
+          <span class="bar-value">${p.hp}/${p.maxHp}</span></div>
+        <div class="stat-bar"><span class="bar-label">💜</span>
+          <div class="bar-track"><div class="bar-fill magicka" style="width:${p.mp/p.maxMp*100}%"></div></div>
+          <span class="bar-value">${p.mp}/${p.maxMp}</span></div>
+        <div class="stat-bar"><span class="bar-label">💚</span>
+          <div class="bar-track"><div class="bar-fill stamina" style="width:${p.sp/p.maxSp*100}%"></div></div>
+          <span class="bar-value">${p.sp}/${p.maxSp}</span></div>
+      </div>
+      <div class="top-info">
+        <span class="top-level">Lv.${p.level}</span>
+        <span class="top-gold">💰 ${p.gold}</span>
+        <span class="top-time">${getWeatherIcon()} ${getTimeString()}</span>
+      </div>
+    </div>
+
+    <div class="left-panel">
+      <div class="panel-tabs">
+        <div class="panel-tab active" onclick="showLeftTab('map',event)">地图</div>
+        <div class="panel-tab" onclick="showLeftTab('quests',event)">任务</div>
+        <div class="panel-tab" onclick="showLeftTab('stats',event)">属性</div>
+      </div>
+      <div class="panel-content" id="left-content">${renderMap()}</div>
+    </div>
+
+    <div class="center-panel">
+      <div class="scene-bg" style="${bgStyle}"></div>
+      <div class="narrative-area" id="narrative">
+        ${G.narrative.map(n=>{
+          if(n.cls==='divider') return '<div class="narr-divider"></div>';
+          return `<div class="narr-text ${n.cls}">${n.text.replace(/\n/g,'<br>')}</div>`;
+        }).join('')}
+        ${renderLocationActions(loc)}
+      </div>
+      <div class="choices-area" id="choices">
+        ${G.choices.map((c,i)=>`
+          <button class="choice-btn ${c.locked?'locked':''}" onclick="makeChoice(${i})">
+            ${c.text}${c.locked?'<span class="choice-req">[条件未满足]</span>':''}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="panel-tabs">
+        <div class="panel-tab active" onclick="showRightTab('inv',event)">物品</div>
+        <div class="panel-tab" onclick="showRightTab('equip',event)">装备</div>
+        <div class="panel-tab" onclick="showRightTab('magic',event)">魔法</div>
+      </div>
+      <div class="panel-content" id="right-content">${renderInventory()}</div>
+    </div>
+
+    <div class="action-bar">
+      <button class="action-btn" onclick="openSaveMenu()">💾 存档</button>
+      <button class="action-btn" onclick="rest()">🏕️ 休息</button>
+      ${loc&&loc.shops?'<button class="action-btn" onclick="openShop()">🏪 商店</button>':''}
+      <button class="action-btn" onclick="openCharSheet()">📋 角色</button>
+      <span class="author-info">制作: 游戏人王鲸 | QQ: 1047008888</span>
+    </div>
+  </div>`;
+}
+
+function renderMap() {
+  const current = LOCATIONS.find(l=>l.id===G.currentLocation);
+  return `<div class="world-map" id="world-map">
+    ${LOCATIONS.filter(l=>G.discoveredLocations.includes(l.id)||l.type==='city'||l.type==='town').map(l=>`
+      <div class="map-location ${l.id===G.currentLocation?'current':''}"
+           style="left:${l.x}%;top:${l.y}%"
+           onclick="clickMapLocation('${l.id}')"
+           title="${l.name}">
+        <div class="map-loc-icon">${l.icon}</div>
+        <div class="map-loc-name">${l.name}</div>
+      </div>
+    `).join('')}
+    <div class="map-player" style="left:${current.x}%;top:${current.y}%"></div>
+    <div class="map-terrain" style="left:10%;top:40%;font-size:40px;opacity:.08">⛰️</div>
+    <div class="map-terrain" style="left:60%;top:15%;font-size:35px;opacity:.06">❄️</div>
+    <div class="map-terrain" style="left:40%;top:70%;font-size:35px;opacity:.06">🌲</div>
+    <div class="map-terrain" style="left:70%;top:60%;font-size:30px;opacity:.06">🍂</div>
+    <div class="map-terrain" style="left:28%;top:35%;font-size:25px;opacity:.06">🌫️</div>
+  </div>`;
+}
+
+function renderQuestLog() {
+  const mq = getCurrentMainQuest();
+  let html = '<div class="quest-log">';
+
+  html += '<div class="ql-section"><div class="ql-header">🐉 主线任务</div>';
+  if(mq) {
+    html += `<div class="ql-item active"><div class="ql-item-name">第${mq.chapter}章: ${mq.name}</div>
+      <div class="ql-item-desc">${mq.desc}</div></div>`;
+  } else {
+    html += '<div class="ql-item"><div class="ql-item-name" style="color:var(--gold)">主线已完成 🎉</div></div>';
+  }
+  html += '</div>';
+
+  html += '<div class="ql-section"><div class="ql-header">📜 支线任务</div>';
+  Object.entries(SIDE_QUEST_CHAINS).forEach(([key, chain])=>{
+    const prog = G.sideQuestProgress[key];
+    const total = chain.quests.length;
+    const status = prog >= total ? '✅' : `${prog}/${total}`;
+    html += `<div class="ql-item" onclick="showSideQuestInfo('${key}')">
+      <div class="ql-item-name">${chain.icon} ${chain.name} [${status}]</div>
+      <div class="ql-item-desc">起始地: ${LOCATIONS.find(l=>l.id===chain.location)?.name}</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  if(G.randomQuests.length) {
+    html += '<div class="ql-section"><div class="ql-header">🔄 当地任务</div>';
+    G.randomQuests.forEach((q,i)=>{
+      html += `<div class="ql-item" onclick="acceptRandomQuest(${i})">
+        <div class="ql-item-name">${q.icon} ${q.name}</div>
+        <div class="ql-item-desc">${q.desc}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+function renderStats() {
+  const p = G.player;
+  const r = RACES.find(x=>x.id===p.race);
+  let html = '<div class="stats-list">';
+  html += `<div style="text-align:center;padding:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+    <div style="font-size:16px;color:var(--gold)">${p.name}</div>
+    <div style="font-size:11px;color:var(--text-dim)">${r?.name} · Lv.${p.level}</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-top:4px">XP: ${p.xp}/${p.xpToNext}</div>
+  </div>`;
+  const skillNames = {
+    oneHand:'单手武器',twoHand:'双手武器',archery:'弓术',block:'格挡',
+    heavyArmor:'重甲',lightArmor:'轻甲',destruction:'毁灭魔法',restoration:'恢复魔法',
+    sneak:'潜行',lockpick:'开锁',alchemy:'炼金术',smithing:'锻造',enchant:'附魔',speech:'口才'
+  };
+  Object.entries(p.skills).forEach(([k,v])=>{
+    html += `<div class="stat-row"><span class="stat-name">${skillNames[k]||k}</span>
+      <span class="stat-val ${v>=50?'high':''}">${v}</span></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderInventory() {
+  const p = G.player;
+  if(!p.inventory.length) {
+    return '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:12px">背包空空如也</div>';
+  }
+  return `<div class="inv-grid">
+    ${p.inventory.map((item,i)=>`
+      <div class="inv-slot ${(item.id===p.weapon?.id||item.id===p.armor?.id)?'equipped':''}"
+           onclick="clickInventoryItem(${i})">
+        ${item.icon||'📦'}
+        ${item.count>1?`<span class="inv-count">${item.count}</span>`:''}
+        <div class="inv-slot-tip">
+          <div class="tip-name">${item.name}</div>
+          ${item.atk?`<div class="tip-stats">攻击: +${item.atk}</div>`:''}
+          ${item.def?`<div class="tip-stats">防御: +${item.def}</div>`:''}
+          ${item.special?`<div class="tip-stats" style="color:var(--gold)">${item.special}</div>`:''}
+          ${item.value?`<div class="tip-stats">效果: +${item.value}</div>`:''}
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderEquipment() {
+  const p = G.player;
+  let html = '<div style="padding:10px">';
+  html += `<div style="margin-bottom:12px;padding:8px;background:#1a1a24;border:1px solid var(--border)">
+    <div style="font-size:10px;color:var(--gold-dim);letter-spacing:2px">武器</div>
+    <div style="font-size:14px;margin-top:4px">${p.weapon.icon} ${p.weapon.name}</div>
+    <div style="font-size:11px;color:var(--blood-bright);margin-top:2px">攻击力: ${getPlayerAtk()}</div>
+  </div>`;
+  html += `<div style="margin-bottom:12px;padding:8px;background:#1a1a24;border:1px solid var(--border)">
+    <div style="font-size:10px;color:var(--gold-dim);letter-spacing:2px">护甲</div>
+    <div style="font-size:14px;margin-top:4px">${p.armor.icon} ${p.armor.name}</div>
+    <div style="font-size:11px;color:var(--frost);margin-top:2px">防御力: ${getPlayerDef()}</div>
+  </div>`;
+  html += '<div style="font-size:10px;color:var(--gold-dim);letter-spacing:2px;margin-bottom:6px">可装备物品</div>';
+  p.inventory.filter(i=>i.type==='weapon'||i.type==='armor').forEach((item)=>{
+    html += `<div class="shop-item" onclick="equipItem('${item.id}','${item.type}')">
+      <span class="shop-item-icon">${item.icon}</span>
+      <div class="shop-item-info">
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-desc">${item.atk?'攻击+'+item.atk:''}${item.def?'防御+'+item.def:''}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderMagic() {
+  const p = G.player;
+  let html = '<div style="padding:10px">';
+  html += '<div style="font-size:10px;color:var(--gold-dim);letter-spacing:2px;margin-bottom:6px">法术</div>';
+  p.spells.forEach(s=>{
+    html += `<div style="padding:6px 8px;margin-bottom:4px;background:#1a1a24;border:1px solid var(--border);font-size:12px">
+      ${s.icon} ${s.name} <span style="color:var(--text-dim);font-size:10px">消耗${s.cost}魔力</span>
+      <div style="font-size:10px;color:var(--text-dim)">${s.desc}</div>
+    </div>`;
+  });
+  if(p.shouts.length) {
+    html += '<div style="font-size:10px;color:var(--gold-dim);letter-spacing:2px;margin:10px 0 6px">龙吼</div>';
+    p.shouts.forEach(s=>{
+      html += `<div style="padding:6px 8px;margin-bottom:4px;background:#2a2010;border:1px solid var(--gold-dim);font-size:12px">
+        ${s.icon} ${s.name} <span style="font-family:var(--font-rune);color:var(--gold);font-size:10px">${s.words.join(' ')}</span>
+        <div style="font-size:10px;color:var(--text-dim)">${s.desc}</div>
+      </div>`;
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderLocationActions(loc) {
+  if(!loc) return '';
+  if(G.choices.length > 0) return '';
+
+  let html = '<div class="town-panel">';
+  html += `<div class="town-name">${loc.icon} ${loc.name}</div>`;
+  html += `<div class="town-desc">${loc.desc}</div>`;
+  html += '<div class="town-actions">';
+
+  const mq = getCurrentMainQuest();
+  if(mq && mq.location === G.currentLocation && !G.completedQuests.includes(mq.id)) {
+    if(!mq.requireQuest || G.completedQuests.includes(mq.requireQuest)) {
+      html += `<button class="town-btn" onclick="triggerMainQuest()" style="border-color:var(--gold-dim);color:var(--gold)">
+        <span class="town-btn-icon">🐉</span>主线: ${mq.name}
+      </button>`;
+    }
+  }
+
+  Object.entries(SIDE_QUEST_CHAINS).forEach(([key, chain])=>{
+    if(chain.location === G.currentLocation) {
+      const prog = G.sideQuestProgress[key];
+      if(prog < chain.quests.length) {
+        const sq = chain.quests[prog];
+        if(prog === 0 || G.completedQuests.includes(chain.quests[prog-1].id)) {
+          html += `<button class="town-btn" onclick="startSideQuest('${key}')">
+            <span class="town-btn-icon">${chain.icon}</span>${chain.name}: ${sq.name}
+          </button>`;
+        }
+      }
+    }
+  });
+
+  if(G.randomQuests.length && !G.activeRandomQuest) {
+    html += '<div style="margin-top:8px;font-size:10px;color:var(--text-dim);letter-spacing:1px">📋 可接取的任务:</div>';
+    G.randomQuests.forEach((q,i)=>{
+      html += `<button class="town-btn" onclick="acceptRandomQuest(${i})">
+        <span class="town-btn-icon">${q.icon}</span>${q.name}
+        <span style="float:right;font-size:10px;color:var(--gold)">💰${q.gold} ⭐${q.xp}</span>
+      </button>`;
+    });
+  }
+
+  if(loc.shops) {
+    html += `<button class="town-btn" onclick="openShop()"><span class="town-btn-icon">🏪</span>商店</button>`;
+    html += `<button class="town-btn" onclick="rest()"><span class="town-btn-icon">🛏️</span>休息 (恢复全部)</button>`;
+  }
+
+  if(loc.id === 'winterhold') {
+    html += `<button class="town-btn" onclick="learnSpells()"><span class="town-btn-icon">📚</span>学习新法术</button>`;
+  }
+
+  if(mq && mq.location !== G.currentLocation) {
+    const targetLoc = LOCATIONS.find(l=>l.id===mq.location);
+    if(targetLoc && (!mq.requireQuest || G.completedQuests.includes(mq.requireQuest))) {
+      html += `<div class="quest-hint">
+        <div class="quest-hint-label">🐉 主线指引</div>
+        第${mq.chapter}章「${mq.name}」— 前往 ${targetLoc.name}
+        <button class="town-btn" style="margin-top:6px;border-color:var(--gold-dim);color:var(--gold)" onclick="travelTo('${mq.location}')">
+          🗺️ 前往 ${targetLoc.name}
+        </button>
+      </div>`;
+    }
+  }
+
+  html += '<div class="travel-section">';
+  html += '<div class="travel-section-title">🗺️ 可前往的地点</div>';
+  const currentLoc = LOCATIONS.find(l=>l.id===G.currentLocation);
+  const reachable = LOCATIONS.filter(l => {
+    if(l.id === G.currentLocation) return false;
+    if(l.id === 'sovngarde' && !G.completedQuests.includes('mq9')) return false;
+    if(!G.discoveredLocations.includes(l.id) && l.type !== 'city' && l.type !== 'town') return false;
+    return true;
+  }).sort((a,b) => {
+    const dA = Math.sqrt((currentLoc.x-a.x)**2+(currentLoc.y-a.y)**2);
+    const dB = Math.sqrt((currentLoc.x-b.x)**2+(currentLoc.y-b.y)**2);
+    return dA - dB;
+  }).slice(0, 8);
+
+  reachable.forEach(l => {
+    const dist = Math.sqrt((currentLoc.x-l.x)**2+(currentLoc.y-l.y)**2);
+    const distLabel = dist < 15 ? '近' : dist < 30 ? '中' : '远';
+    html += `<button class="travel-btn" onclick="travelTo('${l.id}')">
+      ${l.icon} ${l.name} <span class="travel-dist">${distLabel}</span>
+    </button>`;
+  });
+  html += '</div></div></div>';
+  return html;
+}
+
+function renderCombat() {
+  const c = G.combat;
+  const e = c.enemy;
+  const p = G.player;
+
+  return `<div class="combat-overlay">
+    <div class="combat-header">
+      <div class="combat-enemy-name">${e.name}</div>
+      <div class="combat-enemy-lvl">Lv.${Math.max(1, G.player.level + Math.floor(Math.random()*3)-1)}</div>
+    </div>
+    <div class="combat-scene">
+      <div class="enemy-visual">${e.icon || ENEMIES[e.id]?.icon || '👹'}</div>
+      <div class="enemy-hp-bar">
+        <div class="enemy-hp-fill" style="width:${Math.max(0,e.hp/e.maxHp*100)}%"></div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim)">${Math.max(0,e.hp)}/${e.maxHp}</div>
+      <div style="display:flex;gap:14px;margin-top:6px">
+        <div style="font-size:11px">❤️ ${p.hp}/${p.maxHp}</div>
+        <div style="font-size:11px">💜 ${p.mp}/${p.maxMp}</div>
+        <div style="font-size:11px">💚 ${p.sp}/${p.maxSp}</div>
+      </div>
+    </div>
+
+    <div class="combat-log" id="combat-log">
+      ${c.log.map(l=>`<div class="combat-log-entry">${l}</div>`).join('')}
+    </div>
+
+    <div class="combat-actions">
+      ${c.turn==='player'?`
+        <button class="combat-btn" onclick="combatAction('attack')">⚔️ 攻击</button>
+        <button class="combat-btn" onclick="combatAction('power_attack')">💥 强力攻击</button>
+        <button class="combat-btn" onclick="combatAction('block')">🛡️ 格挡</button>
+        ${p.spells.filter(s=>s.type==='destruction').map(s=>
+          `<button class="combat-btn magic" onclick="combatAction('spell',G.player.spells.find(x=>x.id==='${s.id}'))">${s.icon} ${s.name}</button>`
+        ).join('')}
+        ${p.spells.filter(s=>s.heal).map(s=>
+          `<button class="combat-btn item" onclick="combatAction('spell',G.player.spells.find(x=>x.id==='${s.id}'))">${s.icon} ${s.name}</button>`
+        ).join('')}
+        ${p.shouts.map(s=>
+          `<button class="combat-btn shout-btn" onclick="combatAction('shout',G.player.shouts.find(x=>x.id==='${s.id}'))"
+            ${G.shoutCooldowns[s.id]>0?'disabled style="opacity:.4"':''}>${s.icon} ${s.name}${G.shoutCooldowns[s.id]>0?' ('+G.shoutCooldowns[s.id]+')':''}</button>`
+        ).join('')}
+        ${p.inventory.filter(i=>i.effect==='hp'||i.effect==='mp'||i.effect==='sp').map(i=>
+          `<button class="combat-btn item" onclick="combatAction('item',G.player.inventory.find(x=>x.id==='${i.id}'))">
+            ${i.icon} ${i.name}${i.count>1?' x'+i.count:''}</button>`
+        ).join('')}
+        <button class="combat-btn" onclick="combatAction('flee')" style="border-color:#555;color:#999">🏃 逃跑</button>
+      `:'<div style="color:var(--text-dim);font-size:13px;padding:10px;text-align:center;">敌人回合...</div>'}
+    </div>
+  </div>`;
+}
+
+function renderTravel() {
+  const to = LOCATIONS.find(l=>l.id===G.travelTarget);
+  return `<div class="travel-overlay">
+    <div style="font-size:40px;margin-bottom:20px">${getWeatherIcon()}</div>
+    <div class="travel-text">前往 ${to?.name||'未知'} ...</div>
+    <div class="travel-bar"><div class="travel-fill" id="travel-fill" style="width:${G.travelProgress*100}%"></div></div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-dim)">${G.weather==='blizzard'?'暴风雪减缓了你的行程':G.weather==='snow'?'雪花纷飞...':'旅途平安...'}</div>
+  </div>`;
+}
+
+function renderTravelProgress() {
+  const el = document.getElementById('travel-fill');
+  if(el) el.style.width = G.travelProgress*100 + '%';
+}
+
+function renderLevelUp() {
+  return `<div class="levelup-overlay" onclick="event.stopPropagation()">
+    <div class="levelup-box">
+      <div class="levelup-title">等 级 提 升</div>
+      <div style="font-size:16px;color:var(--text)">你达到了 ${G.player.level} 级</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-top:8px">选择一项属性提升:</div>
+      <div class="levelup-choose">
+        <div class="levelup-attr" onclick="chooseLevelUpAttr('hp')">
+          <div class="levelup-attr-icon">❤️</div>
+          <div class="levelup-attr-name">生命</div>
+          <div class="levelup-attr-val">+20</div>
+        </div>
+        <div class="levelup-attr" onclick="chooseLevelUpAttr('mp')">
+          <div class="levelup-attr-icon">💜</div>
+          <div class="levelup-attr-name">魔力</div>
+          <div class="levelup-attr-val">+20</div>
+        </div>
+        <div class="levelup-attr" onclick="chooseLevelUpAttr('sp')">
+          <div class="levelup-attr-icon">💚</div>
+          <div class="levelup-attr-name">耐力</div>
+          <div class="levelup-attr-val">+15</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderShop() {
+  if(!G.shopOpen || !G.shopItems) return '';
+  const rep = G.townReputation[G.currentLocation] || 0;
+  return `<div class="modal-overlay" onclick="G.shopOpen=false;render()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:600px;">
+      <div class="modal-title">🏪 商店</div>
+      <div style="text-align:center;font-size:11px;color:var(--text-dim);margin-bottom:12px">
+        声望: ${rep} | 折扣: ${Math.min(30, rep*5)}% | 💰${G.player.gold}
+      </div>
+      <div style="max-height:40vh;overflow-y:auto;">
+        ${G.shopItems.map((item,i)=>`
+          <div class="shop-item" onclick="buyItem(G.shopItems[${i}])">
+            <span class="shop-item-icon">${item.icon}</span>
+            <div class="shop-item-info">
+              <div class="shop-item-name">${item.name}</div>
+              <div class="shop-item-desc">${item.atk?'攻击+'+item.atk+' ':'' }${item.def?'防御+'+item.def+' ':''}${item.value?'效果+'+item.value:''}</div>
+            </div>
+            <span class="shop-item-price">💰${item.shopPrice}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">出售物品:</div>
+        ${G.player.inventory.filter(i=>!i.questItem).map((item,i)=>`
+          <div class="shop-item" onclick="sellItem(G.player.inventory.filter(i=>!i.questItem)[${i}])">
+            <span class="shop-item-icon">${item.icon}</span>
+            <div class="shop-item-info"><div class="shop-item-name">${item.name}${item.count>1?' x'+item.count:''}</div></div>
+            <span class="shop-item-price" style="color:var(--stamina)">+💰${Math.floor((item.price||10)*0.4)}</span>
+          </div>
+        `).join('')}
+      </div>
+      <button class="modal-btn" onclick="G.shopOpen=false;render()">关闭商店</button>
+    </div>
+  </div>`;
+}
+
+function getLocationBg(loc) {
+  if(!loc) return '';
+  const bgs = {
+    '平原': 'background:linear-gradient(180deg, #1a2520 0%, #0e1810 50%, #0a0a0f 100%)',
+    '海岸': 'background:linear-gradient(180deg, #152030 0%, #0e1520 50%, #0a0a0f 100%)',
+    '冻原': 'background:linear-gradient(180deg, #1a2030 0%, #101828 50%, #0a0a0f 100%)',
+    '秋林': 'background:linear-gradient(180deg, #2a1a10 0%, #1a1008 50%, #0a0a0f 100%)',
+    '山脉': 'background:linear-gradient(180deg, #1a1520 0%, #0e0a18 50%, #0a0a0f 100%)',
+    '冰原': 'background:linear-gradient(180deg, #1a2535 0%, #0e1828 50%, #0a0a0f 100%)',
+    '沼泽': 'background:linear-gradient(180deg, #152018 0%, #0e180e 50%, #0a0a0f 100%)',
+    '森林': 'background:linear-gradient(180deg, #0e1a0e 0%, #081208 50%, #0a0a0f 100%)',
+    '雪山': 'background:linear-gradient(180deg, #202838 0%, #151a28 50%, #0a0a0f 100%)',
+    '异界': 'background:linear-gradient(180deg, #2a2010 0%, #1a1508 50%, #0a0a0f 100%)',
+  };
+  return bgs[loc.region] || 'background:linear-gradient(180deg, #151520, #0a0a0f)';
+}
+
+function bindEvents() {
+  const narr = document.getElementById('narrative');
+  if(narr) narr.scrollTop = narr.scrollHeight;
+  const clog = document.getElementById('combat-log');
+  if(clog) clog.scrollTop = clog.scrollHeight;
+}
+
+// ============================================================
+// GLOBAL FUNCTIONS
+// ============================================================
+
+let selectedRace = 'nord';
+
+function selectRace(id) {
+  selectedRace = id;
+  document.querySelectorAll('.race-card').forEach(el=>el.classList.remove('selected'));
+  document.querySelector(`[data-race="${id}"]`)?.classList.add('selected');
+  const r = RACES.find(x=>x.id===id);
+  const desc = document.getElementById('race-desc');
+  if(desc && r) desc.textContent = r.desc;
+}
+
+function startNewGame() { G.screen = 'charCreate'; render(); }
+
+function continueGame() {
+  if(hasAutoSave()) {
+    try {
+      const data = JSON.parse(localStorage.getItem('skyrim_autosave'));
+      loadGameState(data); render();
+    } catch(e) { notify('没有可用的存档'); }
+  } else { notify('没有自动存档'); }
+}
+
+function showLoadMenu() {
+  let html = '<div class="modal-overlay" onclick="this.remove()"><div class="modal" onclick="event.stopPropagation()">';
+  html += '<div class="modal-title">读取存档</div>';
+  for(let i=1;i<=3;i++) {
+    const has = hasSave(i);
+    html += `<button class="modal-btn" onclick="loadFromSlot(${i});this.closest('.modal-overlay').remove()">${has?'📁':'📂'} 存档 ${i} ${has?'':'(空)'}</button>`;
+  }
+  if(hasAutoSave()) {
+    html += `<button class="modal-btn" onclick="continueGame();this.closest('.modal-overlay').remove()">💾 自动存档</button>`;
+  }
+  html += '<button class="modal-btn" onclick="this.closest(\'.modal-overlay\').remove()">返回</button>';
+  html += '</div></div>';
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+}
+
+function confirmCharacter() {
+  const nameEl = document.getElementById('char-name');
+  const name = nameEl ? nameEl.value.trim() || '龙裔' : '龙裔';
+  G.player = createPlayer(name, selectedRace);
+  G.screen = 'game';
+  G.currentLocation = 'helgen';
+  G.discoveredLocations = ['helgen','riverwood'];
+  G.mainQuestProgress = 0;
+  G.completedQuests = [];
+  G.sideQuestProgress = {companions:0,thieves:0,college:0,darkbrotherhood:0,civilwar:0};
+  G.townReputation = {};
+  G.narrative = [];
+  G.choices = [];
+  G.currentScene = null;
+  G.dayTime = 8; G.day = 1; G.weather = 'clear';
+  G.mobileTab = 'story';
+  G.shopOpen = false;
+  G.pendingLevelUp = false;
+
+  const mq = MAIN_QUESTS[0];
+  G.activeQuests = [mq.id];
+  startQuestScene(mq);
+  autoSave();
+}
+
+function makeChoice(idx) {
+  const choice = G.choices[idx];
+  if(choice && !choice.locked && choice.action) {
+    G.choices = [];
+    choice.action();
+    render();
+  }
+}
+
+function clickMapLocation(locId) {
+  if(locId === G.currentLocation) return;
+  if(G.currentScene) { notify('请先完成当前事件'); return; }
+  const loc = LOCATIONS.find(l=>l.id===locId);
+  if(loc.id==='sovngarde' && !G.completedQuests.includes('mq9')) { notify('索恩加德尚不可达'); return; }
+  travelTo(locId);
+}
+
+function triggerMainQuest() {
+  const mq = getCurrentMainQuest();
+  if(mq) {
+    if(!G.activeQuests.includes(mq.id)) G.activeQuests.push(mq.id);
+    startQuestScene(mq);
+  }
+}
+
+function showLeftTab(tab, e) {
+  const el = document.getElementById('left-content');
+  if(!el) return;
+  document.querySelectorAll('.left-panel .panel-tab').forEach(t=>t.classList.remove('active'));
+  if(e && e.target) e.target.classList.add('active');
+  if(tab==='map') el.innerHTML = renderMap();
+  else if(tab==='quests') el.innerHTML = renderQuestLog();
+  else if(tab==='stats') el.innerHTML = renderStats();
+}
+
+function showRightTab(tab, e) {
+  const el = document.getElementById('right-content');
+  if(!el) return;
+  document.querySelectorAll('.right-panel .panel-tab').forEach(t=>t.classList.remove('active'));
+  if(e && e.target) e.target.classList.add('active');
+  if(tab==='inv') el.innerHTML = renderInventory();
+  else if(tab==='equip') el.innerHTML = renderEquipment();
+  else if(tab==='magic') el.innerHTML = renderMagic();
+}
+
+function setMobileTab(tab) {
+  G.mobileTab = tab;
+  render();
+}
+
+function showMobileSubTab(e, tab) {
+  const el = document.getElementById('mobile-sub-content');
+  if(!el) return;
+  const tabs = e.target.closest('.panel-tabs');
+  if(tabs) tabs.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  if(tab==='inv') el.innerHTML = renderInventory();
+  else if(tab==='equip') el.innerHTML = renderEquipment();
+  else if(tab==='magic') el.innerHTML = renderMagic();
+}
+
+function clickInventoryItem(idx) {
+  const item = G.player.inventory[idx];
+  if(!item) return;
+  if(item.type==='weapon') equipWeapon(item);
+  else if(item.type==='armor') equipArmor(item);
+  else if(item.effect==='hp') {
+    G.player.hp = Math.min(G.player.maxHp, G.player.hp + item.value);
+    removeFromInventory(item); notify(`使用${item.name}，恢复 ${item.value} 生命`); render();
+  } else if(item.effect==='mp') {
+    G.player.mp = Math.min(G.player.maxMp, G.player.mp + item.value);
+    removeFromInventory(item); notify(`使用${item.name}，恢复 ${item.value} 魔力`); render();
+  }
+}
+
+function equipItem(id, type) {
+  const item = G.player.inventory.find(i=>i.id===id);
+  if(!item) return;
+  if(type==='weapon') equipWeapon(item);
+  else if(type==='armor') equipArmor(item);
+}
+
+function rest() {
+  G.player.hp = G.player.maxHp;
+  G.player.mp = G.player.maxMp;
+  G.player.sp = G.player.maxSp;
+  advanceTime(8);
+  addNarrative('你休息了一夜，恢复了全部体力。', 'system');
+  notify('休息完毕，体力完全恢复');
+  if(isMobile()) G.mobileTab = 'story';
+  autoSave();
+  render();
+}
+
+function openSaveMenu() {
+  let html = '<div class="modal-overlay" onclick="this.remove()"><div class="modal" onclick="event.stopPropagation()">';
+  html += '<div class="modal-title">存档管理</div>';
+  for(let i=1;i<=3;i++) {
+    const has = hasSave(i);
+    html += `<div style="display:flex;gap:6px;margin-bottom:6px">
+      <button class="modal-btn" style="flex:1" onclick="saveToSlot(${i});this.closest('.modal-overlay').remove()">💾 保存到 ${i}</button>
+      ${has?`<button class="modal-btn" style="flex:1" onclick="loadFromSlot(${i});this.closest('.modal-overlay').remove()">📁 读取 ${i}</button>`:''}
+    </div>`;
+  }
+  html += '<button class="modal-btn" onclick="this.closest(\'.modal-overlay\').remove()">关闭</button>';
+  html += '</div></div>';
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+}
+
+function openCharSheet() {
+  const p = G.player;
+  const r = RACES.find(x=>x.id===p.race);
+  let html = '<div class="modal-overlay" onclick="this.remove()"><div class="modal" onclick="event.stopPropagation()">';
+  html += '<div class="modal-title">角色信息</div>';
+  html += `<div style="text-align:center;margin-bottom:12px">
+    <div style="font-size:20px;color:var(--gold)">${p.name}</div>
+    <div style="font-size:12px;color:var(--text-dim)">${r?.name} · Lv.${p.level} · XP ${p.xp}/${p.xpToNext}</div>
+  </div>`;
+  html += `<div class="modal-text">
+    ❤️ 生命: ${p.hp}/${p.maxHp}<br>
+    💜 魔力: ${p.mp}/${p.maxMp}<br>
+    💚 耐力: ${p.sp}/${p.maxSp}<br>
+    ⚔️ 攻击力: ${getPlayerAtk()} (${p.weapon.name})<br>
+    🛡️ 防御力: ${getPlayerDef()} (${p.armor.name})<br>
+    💰 金币: ${p.gold}<br><br>
+    <strong>已完成任务:</strong> ${G.completedQuests.length}<br>
+    <strong>发现地点:</strong> ${G.discoveredLocations.length}/${LOCATIONS.length}<br>
+    <strong>龙吼:</strong> ${p.shouts.length ? p.shouts.map(s=>s.name).join(', ') : '无'}
+  </div>`;
+  html += '<button class="modal-btn" onclick="this.closest(\'.modal-overlay\').remove()">关闭</button>';
+  html += '</div></div>';
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+}
+
+function showSideQuestInfo(chainId) {
+  const chain = SIDE_QUEST_CHAINS[chainId];
+  const prog = G.sideQuestProgress[chainId];
+  let html = '<div class="modal-overlay" onclick="this.remove()"><div class="modal" onclick="event.stopPropagation()">';
+  html += `<div class="modal-title">${chain.icon} ${chain.name}</div>`;
+  html += `<div class="modal-text">起始地: ${LOCATIONS.find(l=>l.id===chain.location)?.name}<br>进度: ${prog}/${chain.quests.length}</div>`;
+  chain.quests.forEach((q,i)=>{
+    const done = i < prog;
+    const current = i === prog;
+    html += `<div style="padding:6px 8px;margin:4px 0;border-left:2px solid ${done?'var(--stamina)':current?'var(--gold)':'var(--border)'};
+      background:${current?'#1a1a2488':'transparent'};opacity:${done?0.6:1}">
+      <div style="font-size:12px;color:${done?'var(--text-dim)':'var(--text)'}">${done?'✅':current?'▶':''} ${q.name}</div>
+      <div style="font-size:10px;color:var(--text-dim)">${q.desc}</div>
+    </div>`;
+  });
+  if(chain.quests[prog]?.mainQuestHook) {
+    html += `<div style="margin-top:8px;padding:8px;background:#2a201088;border:1px solid var(--gold-dim);font-size:11px;color:var(--gold)">
+      ⚡ 此支线与主线任务关联</div>`;
+  }
+  html += '<button class="modal-btn" onclick="this.closest(\'.modal-overlay\').remove()">关闭</button>';
+  html += '</div></div>';
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+}
+
+function learnSpells() {
+  const learnable = SPELLS.filter(s => !G.player.spells.find(x=>x.id===s.id) && (!s.reqLevel || G.player.level >= s.reqLevel));
+  if(!learnable.length) { notify('没有可学习的新法术'); return; }
+  let html = '<div class="modal-overlay" onclick="this.remove()"><div class="modal" onclick="event.stopPropagation()">';
+  html += '<div class="modal-title">学习法术</div>';
+  learnable.forEach(s=>{
+    const cost = (s.reqLevel||1) * 50;
+    html += `<div class="shop-item" onclick="learnSpell('${s.id}',${cost});this.closest('.modal-overlay').remove()">
+      <span class="shop-item-icon">${s.icon}</span>
+      <div class="shop-item-info">
+        <div class="shop-item-name">${s.name}</div>
+        <div class="shop-item-desc">${s.desc} · 消耗${s.cost}魔力</div>
+      </div>
+      <span class="shop-item-price">💰${cost}</span>
+    </div>`;
+  });
+  html += '<button class="modal-btn" onclick="this.closest(\'.modal-overlay\').remove()">关闭</button>';
+  html += '</div></div>';
+  document.getElementById('app').insertAdjacentHTML('beforeend', html);
+}
+
+function learnSpell(id, cost) {
+  if(G.player.gold < cost) { notify('金币不足'); return; }
+  const spell = SPELLS.find(s=>s.id===id);
+  if(!spell) return;
+  G.player.gold -= cost;
+  G.player.spells.push(spell);
+  notify(`学会了: ${spell.name}`);
+  improveSkill(spell.type==='destruction'?'destruction':'restoration', 3);
+  render();
+}
+
+function createSnowEffect() {
+  if(G.weather !== 'snow' && G.weather !== 'blizzard') {
+    const existing = document.querySelector('.snow-container');
+    if(existing) existing.remove();
+    return;
+  }
+  let container = document.querySelector('.snow-container');
+  if(!container) {
+    container = document.createElement('div');
+    container.className = 'snow-container';
+    document.body.appendChild(container);
+  }
+  container.innerHTML = '';
+  const count = G.weather === 'blizzard' ? 40 : 15;
+  for(let i=0; i<count; i++) {
+    const flake = document.createElement('div');
+    flake.className = 'snowflake';
+    flake.textContent = '❄';
+    flake.style.left = Math.random()*100 + '%';
+    flake.style.fontSize = (4 + Math.random()*8) + 'px';
+    flake.style.animationDuration = (3 + Math.random()*5) + 's';
+    flake.style.animationDelay = Math.random()*5 + 's';
+    container.appendChild(flake);
+  }
+}
+
+function init() {
+  G.screen = 'title';
+  render();
+
+  setInterval(()=>{
+    if(G.screen === 'game' || G.screen === 'travel') createSnowEffect();
+  }, 5000);
+
+  setInterval(()=>{
+    if(G.player && G.screen === 'game') autoSave();
+  }, 60000);
+
+  let resizeTimer;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(()=>{
+      if(G.screen === 'game') render();
+    }, 200);
+  });
+}
+
+init();
+</script>
+</body>
+</html>
